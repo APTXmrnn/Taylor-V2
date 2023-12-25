@@ -1,49 +1,52 @@
+import { fetch as fetchUndici } from 'undici';
 import got from 'got';
 import fetch from 'node-fetch';
 import axios from 'axios';
-import {
-    format
-} from 'util';
+import { format } from 'util';
 
 const MAX_CONTENT_SIZE = 100 * 1024 * 1024 * 1024; // 100GB
 
-let handler = async (m, {
-    text
-}) => {
+let handler = async (m, { text }) => {
     if (!text) throw '*Masukkan Link*\n*Ex:* s.id';
 
     text = addHttpsIfNeeded(text);
-    let {
-        href: url,
-        origin
-    } = new URL(text);
+    let { href: url, origin } = new URL(text);
     let response, txt;
 
     try {
-        response = await got(url, {
+        response = await fetchUndici(url, {
             headers: {
                 'referer': origin
             }
         });
-        txt = response.body;
+        txt = await response.text();
     } catch {
         try {
-            response = await fetch(url, {
+            response = await got(url, {
                 headers: {
                     'referer': origin
                 }
             });
-            txt = await response.text();
+            txt = response.body;
         } catch {
             try {
-                response = await axios.get(url, {
+                response = await fetch(url, {
                     headers: {
                         'referer': origin
                     }
                 });
-                txt = response.data;
+                txt = await response.text();
             } catch {
-                throw "Gagal mengambil data dari semua sumber";
+                try {
+                    response = await axios.get(url, {
+                        headers: {
+                            'referer': origin
+                        }
+                    });
+                    txt = response.data;
+                } catch {
+                    throw "Gagal mengambil data dari semua sumber";
+                }
             }
         }
     }
