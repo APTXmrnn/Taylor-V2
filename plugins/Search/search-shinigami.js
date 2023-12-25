@@ -100,16 +100,13 @@ export default handler
 
 /* New Line */
 async function searchShikigami(query) {
-    // Menggunakan fungsi searchShikigami dengan URL yang diberikan
-    const url = 'https://shinigami.id/?s=' + query + '&post_type=wp-manga&op=&author=&artist=&release=&adult='; // Ganti dengan URL yang sesuai
+try {
+    const url = 'https://toonchill.com/?s=' + query + '&post_type=wp-manga&op=&author=&artist=&release=&adult=';
     const response = await fetch(url);
     const html = await response.text();
-
     const $ = cheerio.load(html);
-
     const shikigamiArray = $('.c-tabs-item__content').map((index, element) => {
         const $element = $(element);
-
         return {
             nama: $element.find('.post-title h3 a').text().trim(),
             link: $element.find('.post-title h3 a').attr('href'),
@@ -126,6 +123,9 @@ async function searchShikigami(query) {
     }).get();
 
     return shikigamiArray;
+    } catch (error) {
+        throw new Error('Terjadi kesalahan saat mengambil detail manga');
+    }
 }
 
 async function getDetails(url) {
@@ -141,7 +141,6 @@ async function getDetails(url) {
 
         manga.info = {
             rating: $('.post-total-rating .score').text().trim(),
-            rank: $('.post-content_item:contains("Rank") .summary-content').text().trim(),
             alternative: $('.post-content_item:contains("Alternative") .summary-content').text().trim(),
             authors: $('.post-content_item:contains("Author(s)") .summary-content a').map((index, authorElement) => $(authorElement).text().trim()).get(),
             artists: $('.post-content_item:contains("Artist(s)") .summary-content a').map((index, artistElement) => $(artistElement).text().trim()).get(),
@@ -156,8 +155,8 @@ async function getDetails(url) {
         manga.chapters = [];
         $('.listing-chapters_wrap .main li').each((index, element) => {
             const chapter = {
-                chapterTitle: $(element).find('.chapter-manhwa-title').text().trim(),
-                chapterLink: $(element).find('.chapter-link a').attr('href'),
+                chapterTitle: $(element).find('.wp-manga-chapter a').text().trim(),
+                chapterLink: $(element).find('.wp-manga-chapter a').attr('href'),
                 releaseDate: $(element).find('.chapter-release-date i').text().trim()
             };
             manga.chapters.push(chapter);
