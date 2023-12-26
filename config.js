@@ -179,7 +179,20 @@ global.adReplyS = {
     seconds: SizeDoc(),
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-        forwardingScore: SizeDoc(),
+  groupMentions: [],
+  isForwarded: true,
+  expiration: global.ephemeral,
+  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
+  disappearingMode: { initiator: 0, trigger: 0 },
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363144038483540@newsletter',
+    newsletterName: 'Taylor By Wudy.',
+    serverMessageId: -1
+  },
+  businessMessageForwardInfo: {
+    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+  },
+        forwardingScore: 127,
         externalAdReply: {
             title: "📍 " + Sapa() + Pagi(),
             body: author,
@@ -197,7 +210,20 @@ global.adReply = {
     seconds: SizeDoc(),
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-        forwardingScore: SizeDoc(),
+  groupMentions: [],
+  isForwarded: true,
+  expiration: global.ephemeral,
+  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
+  disappearingMode: { initiator: 0, trigger: 0 },
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363144038483540@newsletter',
+    newsletterName: 'Taylor By Wudy.',
+    serverMessageId: -1
+  },
+  businessMessageForwardInfo: {
+    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+  },
+        forwardingScore: 127,
         externalAdReply: {
             body: author,
             containsAutoReply: true,
@@ -218,6 +244,20 @@ global.adReply = {
 global.fakeig = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
+  groupMentions: [],
+  isForwarded: true,
+  expiration: global.ephemeral,
+  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
+  disappearingMode: { initiator: 0, trigger: 0 },
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363144038483540@newsletter',
+    newsletterName: 'Taylor By Wudy.',
+    serverMessageId: -1
+  },
+  businessMessageForwardInfo: {
+    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+  },
+        forwardingScore: 127,
         externalAdReply: {
             mediaUrl: sig,
             mediaType: "VIDEO",
@@ -233,6 +273,20 @@ global.fakeig = {
 global.fakefb = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
+  groupMentions: [],
+  isForwarded: true,
+  expiration: global.ephemeral,
+  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
+  disappearingMode: { initiator: 0, trigger: 0 },
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363144038483540@newsletter',
+    newsletterName: 'Taylor By Wudy.',
+    serverMessageId: -1
+  },
+  businessMessageForwardInfo: {
+    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+  },
+        forwardingScore: 127,
         externalAdReply: {
             mediaUrl: sfb,
             mediaType: "VIDEO",
@@ -248,6 +302,20 @@ global.fakefb = {
 global.faketik = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
+  groupMentions: [],
+  isForwarded: true,
+  expiration: global.ephemeral,
+  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
+  disappearingMode: { initiator: 0, trigger: 0 },
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363144038483540@newsletter',
+    newsletterName: 'Taylor By Wudy.',
+    serverMessageId: -1
+  },
+  businessMessageForwardInfo: {
+    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+  },
+        forwardingScore: 127,
         externalAdReply: {
             mediaUrl: snh,
             mediaType: "VIDEO",
@@ -263,6 +331,20 @@ global.faketik = {
 global.fakeyt = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
+  groupMentions: [],
+  isForwarded: true,
+  expiration: global.ephemeral,
+  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
+  disappearingMode: { initiator: 0, trigger: 0 },
+  forwardedNewsletterMessageInfo: {
+    newsletterJid: '120363144038483540@newsletter',
+    newsletterName: 'Taylor By Wudy.',
+    serverMessageId: -1
+  },
+  businessMessageForwardInfo: {
+    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+  },
+        forwardingScore: 127,
         externalAdReply: {
             mediaUrl: syt,
             mediaType: "VIDEO",
