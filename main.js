@@ -388,30 +388,45 @@ if (!opts['test']) {
 
 if (opts['server'])(await import('./server.js')).default(global.conn, PORT);
 
+import { readdir, stat, unlink } from 'fs';
+
+const readdirAsync = promisify(readdir);
+const statAsync = promisify(stat);
+const unlinkAsync = promisify(unlink);
+const mkdirSyncAsync = promisify(mkdirSync);
+
 async function clearTmp() {
     try {
         const tmp = [tmpdir(), join(__dirname, "./tmp")];
-        const filename = tmp.flatMap((dirname) =>
-            readdirSync(dirname).filter((file) => {
-                try {
-                    const stats = statSync(join(dirname, file));
-                    return stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 3;
-                } catch (err) {
-                    console.error(`Error reading stats for ${file}: ${err.message}`);
-                    return false;
-                }
-            }).map((file) => {
-                try {
-                    unlinkSync(join(dirname, file));
-                    console.log(chalk.cyanBright("Successfully clear tmp"));
-                    return join(dirname, file);
-                } catch (err) {
-                    console.error(`Error unlinking ${file}: ${err.message}`);
-                    return null;
-                }
-            })
-        );
-        return filename.filter((file) => file !== null);
+        const filenames = await Promise.all(tmp.map(async (dirname) => {
+            try {
+                const files = await readdirAsync(dirname);
+                return files
+                    .filter(async (file) => {
+                        try {
+                            const stats = await statAsync(join(dirname, file));
+                            return stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 3;
+                        } catch (err) {
+                            console.error(`Error reading stats for ${file}: ${err.message}`);
+                            return false;
+                        }
+                    })
+                    .map(async (file) => {
+                        try {
+                            await unlinkAsync(join(dirname, file));
+                            console.log(chalk.cyanBright("Successfully cleared tmp"));
+                            return join(dirname, file);
+                        } catch (err) {
+                            console.error(`Error unlinking ${file}: ${err.message}`);
+                            return null;
+                        }
+                    });
+            } catch (err) {
+                console.error(`Error reading directory ${dirname}: ${err.message}`);
+                return [];
+            }
+        }));
+        return filenames.flat().filter((file) => file !== null);
     } catch (err) {
         console.error(`Error in clearTmp: ${err.message}`);
         return [];
@@ -420,25 +435,23 @@ async function clearTmp() {
 
 async function clearSessions(folder = "./TaylorSession") {
     try {
-        const filename = readdirSync(folder).filter((file) => {
+        const filenames = await readdirAsync(folder);
+        const deletedFiles = await Promise.all(filenames.map(async (file) => {
             try {
-                const stats = statSync(join(folder, file));
-                return stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 120;
+                const filePath = join(folder, file);
+                const stats = await statAsync(filePath);
+                if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 120) {
+                    await unlinkAsync(filePath);
+                    console.log("Deleted sessions", filePath);
+                    return filePath;
+                }
+                return null;
             } catch (err) {
-                console.error(`Error reading stats for ${file}: ${err.message}`);
-                return false;
-            }
-        }).map((file) => {
-            try {
-                unlinkSync(join(folder, file));
-                console.log("Deleted sessions", join(folder, file));
-                return join(folder, file);
-            } catch (err) {
-                console.error(`Error unlinking ${file}: ${err.message}`);
+                console.error(`Error processing ${file}: ${err.message}`);
                 return null;
             }
-        });
-        return filename.filter((file) => file !== null);
+        }));
+        return deletedFiles.filter((file) => file !== null);
     } catch (err) {
         console.error(`Error in clearSessions: ${err.message}`);
         return [];
@@ -448,14 +461,14 @@ async function clearSessions(folder = "./TaylorSession") {
 async function purgeSession() {
     try {
         const prekeyFolder = './TaylorSession';
-        const prekeyFiles = readdirSync(prekeyFolder).filter((file) => file.startsWith('pre-key-'));
-        prekeyFiles.forEach((file) => {
+        const prekeyFiles = await readdirAsync(prekeyFolder);
+        await Promise.all(prekeyFiles.map(async (file) => {
             try {
-                unlinkSync(join(prekeyFolder, file));
+                await unlinkAsync(join(prekeyFolder, file));
             } catch (err) {
                 console.error(`Error unlinking ${file}: ${err.message}`);
             }
-        });
+        }));
     } catch (err) {
         console.error(`Error in purgeSession: ${err.message}`);
     }
@@ -464,28 +477,28 @@ async function purgeSession() {
 async function purgeSessionSB() {
     try {
         const directories = ['./TaylorSession/', './jadibot/'];
-        directories.forEach((folderPath) => {
+        await Promise.all(directories.map(async (folderPath) => {
             try {
                 if (!existsSync(folderPath)) {
-                    mkdirSync(folderPath);
-                    conn.logger.info(`\nFolder ${folderPath} berhasil dibuat.`);
+                    await mkdirSyncAsync(folderPath);
+                    console.log(`\nFolder ${folderPath} successfully created.`);
                 }
-                const listaDirectorios = readdirSync(folderPath);
-                listaDirectorios.forEach((filesInDir) => {
+                const listaDirectorios = await readdirAsync(folderPath);
+                await Promise.all(listaDirectorios.map(async (filesInDir) => {
                     const dirPath = join(folderPath, filesInDir);
-                    const SBprekeyFiles = readdirSync(dirPath).filter((fileInDir) => fileInDir.startsWith('pre-key-'));
-                    SBprekeyFiles.forEach((fileInDir) => {
+                    const SBprekeyFiles = await readdirAsync(dirPath);
+                    await Promise.all(SBprekeyFiles.map(async (fileInDir) => {
                         try {
-                            unlinkSync(join(dirPath, fileInDir));
+                            await unlinkAsync(join(dirPath, fileInDir));
                         } catch (err) {
                             console.error(`Error unlinking ${fileInDir}: ${err.message}`);
                         }
-                    });
-                });
+                    }));
+                }));
             } catch (err) {
                 console.error(`Error in purgeSessionSB: ${err.message}`);
             }
-        });
+        }));
     } catch (err) {
         console.error(`Error in purgeSessionSB: ${err.message}`);
     }
@@ -495,22 +508,23 @@ async function purgeOldFiles() {
     try {
         const directories = ['./TaylorSession/', './jadibot/'];
         const oneHourAgo = Date.now() - (60 * 60 * 1000);
-        directories.forEach((dir) => {
-            readdirSync(dir).forEach((file) => {
+        await Promise.all(directories.map(async (dir) => {
+            const files = await readdirAsync(dir);
+            await Promise.all(files.map(async (file) => {
                 try {
                     const filePath = join(dir, file);
-                    const stats = statSync(filePath);
+                    const stats = await statAsync(filePath);
                     if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') {
-                        unlinkSync(filePath);
-                        conn.logger.info(`\nBerkas ${file} berhasil dihapus`);
+                        await unlinkAsync(filePath);
+                        console.log(`\nFile ${file} successfully deleted`);
                     } else {
-                        conn.logger.warn(`\nBerkas ${file} tidak dihapus`);
+                        console.warn(`\nFile ${file} not deleted`);
                     }
                 } catch (err) {
                     console.error(`Error processing ${file}: ${err.message}`);
                 }
-            });
-        });
+            }));
+        }));
     } catch (err) {
         console.error(`Error in purgeOldFiles: ${err.message}`);
     }
