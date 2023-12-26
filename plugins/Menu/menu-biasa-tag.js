@@ -721,7 +721,7 @@ ${v.rowId}`.trim()
                             mentionedJid: [m.sender],
                             externalAdReply: {
                                 title: ucapan() + " " + m.name,
-                                thumbnail: await (await conn.getFile([logo, imagebot].getRandom())).data
+                                thumbnail: await (await conn.resize([logo, imagebot].getRandom(), 300, 150))
                             },
                         },
                     }
@@ -765,7 +765,7 @@ ${v.rowId}`.trim()
                         mentionedJid: [m.sender],
                         externalAdReply: {
                             title: ucapan() + " " + m.name,
-                            thumbnail: await (await conn.getFile([logo, imagebot].getRandom())).data
+                            thumbnail: await (await conn.resize([logo, imagebot].getRandom(), 300, 150))
                         }
                     }
                 });
@@ -950,7 +950,7 @@ ${v.rowId}`.trim()
                         mentionedJid: [m.sender],
                         externalAdReply: {
                             title: ucapan() + " " + m.name,
-                            thumbnail: await (await conn.getFile([logo, imagebot].getRandom())).data
+                            thumbnail: await (await conn.resize([logo, imagebot].getRandom(), 300, 150))
                         },
                     },
                 }
@@ -994,7 +994,7 @@ ${v.rowId}`.trim()
                     mentionedJid: [m.sender],
                     externalAdReply: {
                         title: ucapan() + " " + m.name,
-                        thumbnail: await (await conn.getFile([logo, imagebot].getRandom())).data
+                        thumbnail: await (await conn.resize([logo, imagebot].getRandom(), 300, 150))
                     }
                 }
             });
