@@ -1,5 +1,7 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
-import './config.js';
+import {
+    loadConfig
+} from './config.js';
 
 import {
     createRequire
@@ -276,6 +278,7 @@ global.conn = makeWaSocket(connectionOptions);
 store.bind(conn.ev)
 conn.isInit = false
 
+await loadConfig(conn)
 if (pairingCode && !conn.authState.creds.registered) {
     if (useMobile) conn.logger.error('\nCannot use pairing code with mobile api')
     console.log(chalk.cyan('╭──────────────────────────────────────···'));

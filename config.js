@@ -8,510 +8,639 @@ import {
 } from "url"
 import fs from "fs"
 import moment from "moment-timezone"
+import fetch from "node-fetch"
+import Jimp from "jimp"
 
-/*Oᴡɴᴇʀ number*/
-global.owner = [
-    ["6282195322106", "️𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 - 𝑶𝒘𝒏𝒆𝒓", true]
-]
-global.mods = ["6282195322106"]
-global.prems = ["6282195322106"]
+async function loadConfig(conn) {
 
-/*Website*/
-global.APIs = {
-    amel: "https://melcanz.com",
-    bg: "http://bochil.ddns.net",
-    dhnjing: "https://dhnjing.xyz",
-    dzx: "https://api.dhamzxploit.my.id",
-    fdci: "https://api.fdci.se",
-    hardianto: "https://hardianto.xyz",
-    lolhuman: "https://api.lolhuman.xyz",
-    neoxr: "https://api.neoxr.my.id",
-    pencarikode: "https://pencarikode.xyz",
-    xteam: "https://api.xteam.xyz",
-    xyro: "https://api.xyroinee.xyz",
-    zeks: "https://api.zeks.xyz",
-    zenz: "https://api.zahwazein.xyz",
-    btchx: "https://api.botcahx.biz.id"
-}
+    /*Oᴡɴᴇʀ number*/
+    global.owner = [
+        ["6282195322106", "️𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 - 𝑶𝒘𝒏𝒆𝒓", true]
+    ]
+    global.mods = ["6282195322106"]
+    global.prems = ["6282195322106"]
 
-/*Apikey*/
-global.APIKeys = {
-    "https://api.neoxr.my.id": pickRandom(["5VC9rvNx", "lucycat"]),
-    "https://api.lolhuman.xyz": pickRandom(["043c5de3b7cd6b1b8f2a0f90", "e1a815979e6adfc071b7eafc", "ed78c137a46873c5b8e5fe3b", "IchanZX", "GataDios"]),
-    "https://api.xteam.xyz": "HIRO",
-    "https://api.xyroinee.xyz": "yqiBQF86F4",
-    "https://api.zeks.xyz": "apivinz",
-    "https://hardianto.xyz": "hardianto",
-    "https://melcanz.com": "manHkmst",
-    "https://pencarikode.xyz": "pais",
-    "https://api.zahwazein.xyz": "zenzkey_1ec92f71d3bb",
-    "https://api.botcahx.biz.id": "Admin"
-}
+    /*Website*/
+    global.APIs = {
+        amel: "https://melcanz.com",
+        bg: "http://bochil.ddns.net",
+        dhnjing: "https://dhnjing.xyz",
+        dzx: "https://api.dhamzxploit.my.id",
+        fdci: "https://api.fdci.se",
+        hardianto: "https://hardianto.xyz",
+        lolhuman: "https://api.lolhuman.xyz",
+        neoxr: "https://api.neoxr.my.id",
+        pencarikode: "https://pencarikode.xyz",
+        xteam: "https://api.xteam.xyz",
+        xyro: "https://api.xyroinee.xyz",
+        zeks: "https://api.zeks.xyz",
+        zenz: "https://api.zahwazein.xyz",
+        btchx: "https://api.botcahx.biz.id"
+    }
 
-/*Lolhuman*/
-global.lolkey = pickRandom(["043c5de3b7cd6b1b8f2a0f90", "e1a815979e6adfc071b7eafc", "ed78c137a46873c5b8e5fe3b", "IchanZX", "GataDios"])
-/*OpenAi*/
-global.openaikey = "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"
-/*AmeApi*/
-global.ameapikey = "1f98ec7e4842d057d7551722f83e9ae5c59896856aa3f96d406ff8fc9185752062920fadf1df1ea71c332d3f6be2dd6fa62b7ac3d0140e40d86ba0e736135820"
-/*XyroineeApi*/
-global.xyro = "yqiBQF86F4"
+    /*Apikey*/
+    global.APIKeys = {
+        "https://api.neoxr.my.id": pickRandom(["5VC9rvNx", "lucycat"]),
+        "https://api.lolhuman.xyz": pickRandom(["043c5de3b7cd6b1b8f2a0f90", "e1a815979e6adfc071b7eafc", "ed78c137a46873c5b8e5fe3b", "IchanZX", "GataDios"]),
+        "https://api.xteam.xyz": "HIRO",
+        "https://api.xyroinee.xyz": "yqiBQF86F4",
+        "https://api.zeks.xyz": "apivinz",
+        "https://hardianto.xyz": "hardianto",
+        "https://melcanz.com": "manHkmst",
+        "https://pencarikode.xyz": "pais",
+        "https://api.zahwazein.xyz": "zenzkey_1ec92f71d3bb",
+        "https://api.botcahx.biz.id": "Admin"
+    }
 
-/*Number*/
-global.nomorbot = "6285171216276"
-global.nomorown = "6282195322106"
-global.namebot = " ᴛᴀyʟᴏʀ-ʙᴏᴛ あ⁩ "
-global.nameown = "「 𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 」"
+    /*Lolhuman*/
+    global.lolkey = pickRandom(["043c5de3b7cd6b1b8f2a0f90", "e1a815979e6adfc071b7eafc", "ed78c137a46873c5b8e5fe3b", "IchanZX", "GataDios"])
+    /*OpenAi*/
+    global.openaikey = "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"
+    /*AmeApi*/
+    global.ameapikey = "1f98ec7e4842d057d7551722f83e9ae5c59896856aa3f96d406ff8fc9185752062920fadf1df1ea71c332d3f6be2dd6fa62b7ac3d0140e40d86ba0e736135820"
+    /*XyroineeApi*/
+    global.xyro = "yqiBQF86F4"
 
-/* Random */
-global.pmenus = pickRandom(["乂", "◈", "➭", "ଓ", "⟆•", "⳻", "•", "↬", "◈", "⭑", "ᯬ", "◉", "᭻", "»", "〆", "々", "⛥", "✗", "⚜", "⚚", "♪"])
-global.htjava = pickRandom(["乂", "⛶", "❏", "⫹⫺", "☰", "⎔", "✦", "⭔", "⬟", "⛊", "⚝"])
+    /*Number*/
+    global.nomorbot = conn.user.jid.split("@")[0]
+    global.nomorown = "6282195322106"
+    global.namebot = " ᴛᴀyʟᴏʀ-ʙᴏᴛ あ⁩ "
+    global.nameown = "「 𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 」"
 
-/*Watermark*/
-global.wm = "                「 ᴛᴀyʟᴏʀ-ʙᴏᴛ あ⁩ 」"
-global.wm2 = "꒷︶꒷꒥꒷ ‧₊˚ ꒰ฅ˘օառɛʀ˘ฅ ꒱ ‧₊˚꒷︶꒷꒥꒷"
-global.wm3 = htjava + " ᴛᴀyʟᴏʀ-ʙᴏᴛ"
-global.botdate = `${htjava} Date :  ${moment.tz("Asia/Makassar").format("DD/MM/YY")}`
-global.bottime = `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`
-global.titlebot = `${htjava} Time Sever : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}\n⫹⫺ Date Server :  ${moment.tz("Asia/Makassar").format("DD/MM/YY")}`
+    /* Random */
+    global.pmenus = pickRandom(["乂", "◈", "➭", "ଓ", "⟆•", "⳻", "•", "↬", "◈", "⭑", "ᯬ", "◉", "᭻", "»", "〆", "々", "⛥", "✗", "⚜", "⚚", "♪"])
+    global.htjava = pickRandom(["乂", "⛶", "❏", "⫹⫺", "☰", "⎔", "✦", "⭔", "⬟", "⛊", "⚝"])
 
-/*Thumbnail*/
-global.giflogo = VideoGalau()
-global.fla = pickRandom(ImgLogoFlam())
-global.flaaa = ImgLogoDynamic()
+    /*Watermark*/
+    global.wm = "                「 ᴛᴀyʟᴏʀ-ʙᴏᴛ あ⁩ 」"
+    global.wm2 = "꒷︶꒷꒥꒷ ‧₊˚ ꒰ฅ˘օառɛʀ˘ฅ ꒱ ‧₊˚꒷︶꒷꒥꒷"
+    global.wm3 = htjava + " ᴛᴀyʟᴏʀ-ʙᴏᴛ"
+    global.botdate = `${htjava} Date :  ${moment.tz("Asia/Makassar").format("DD/MM/YY")}`
+    global.bottime = `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`
+    global.titlebot = `${htjava} Time Sever : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}\n⫹⫺ Date Server :  ${moment.tz("Asia/Makassar").format("DD/MM/YY")}`
 
-/*Link*/
-global.sig = "https://www.instagram.com/wudysoft"
-global.sgh = "https://www.github.com/AyGemuy"
-global.sgc = "https://chat.whatsapp.com/LqJoQr4IdBLAXsxd1PkNph"
-global.sdc = "https://www.discord.com/wudysoft"
-global.snh = "https://www.tiktok.com/@upload_file"
-global.sfb = "https://www.facebook.com/"
-global.syt = "https://www.youtube.com/"
+    /*Thumbnail*/
+    global.giflogo = VideoGalau()
+    global.fla = pickRandom(ImgLogoFlam())
+    global.flaaa = ImgLogoDynamic()
 
-/*Nsfw*/
-global.premnsfw = true
+    /*Link*/
+    global.sig = "https://www.instagram.com/wudysoft"
+    global.sgh = "https://www.github.com/AyGemuy"
+    global.sgc = "https://chat.whatsapp.com/LqJoQr4IdBLAXsxd1PkNph"
+    global.sdc = "https://www.discord.com/wudysoft"
+    global.snh = "https://www.tiktok.com/@upload_file"
+    global.sfb = "https://www.facebook.com/"
+    global.syt = "https://www.youtube.com/"
 
-/*Type*/
-global.dpptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-global.ddocx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-global.dxlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-global.dpdf = "application/pdf"
-global.drtf = "text/rtf"
+    /*Nsfw*/
+    global.premnsfw = true
 
-/*Fake*/
-global.fsizedoc = SizeDoc()
-global.fpagedoc = PageDoc()
+    /*Type*/
+    global.dpptx = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    global.ddocx = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    global.dxlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    global.dpdf = "application/pdf"
+    global.drtf = "text/rtf"
 
-/* Hiasan */
-global.dmenut = htjava + "───『"
-global.dmenub = "│" + pmenus
-global.dmenub2 = "│" + pmenus
-global.dmenuf = "╰──────────⳹"
-global.dashmenu = "☰ *D A S B O A R D* ☰"
-global.htki = htjava + "───『"
-global.htka = "』───" + htjava
+    /*Fake*/
+    global.fsizedoc = SizeDoc()
+    global.fpagedoc = PageDoc()
 
-/* Thumbnail */
-global.hwaifu = ImgWaifu()
-global.hbeach = ImgCosplay()
-global.thumbnailUrl = ImgBoneka()
-global.hoppai = ImgCosplay()
-global.hloli = ImgCosplay()
-global.hyuri = ImgCosplay()
-global.hneko = ImgCosplay()
-global.hLokun = ImgCosplay()
-global.hbunny = ImgCosplay()
-global.thumbs = ImgBoneka()
-global.thumb = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgEstetik()])
-global.imagebot = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgMountain()])
-global.thumbdoc = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgEstetik()])
-global.logo = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgMountain()])
+    /* Hiasan */
+    global.dmenut = htjava + "───『"
+    global.dmenub = "│" + pmenus
+    global.dmenub2 = "│" + pmenus
+    global.dmenuf = "╰──────────⳹"
+    global.dashmenu = "☰ *D A S B O A R D* ☰"
+    global.htki = htjava + "───『"
+    global.htka = "』───" + htjava
 
-/* Begin */
-global.ucapan = Pagi()
-global.ephemeral = "86400"
+    /* Thumbnail */
+    global.hwaifu = ImgWaifu()
+    global.hbeach = ImgCosplay()
+    global.thumbnailUrl = ImgBoneka()
+    global.hoppai = ImgCosplay()
+    global.hloli = ImgCosplay()
+    global.hyuri = ImgCosplay()
+    global.hneko = ImgCosplay()
+    global.hLokun = ImgCosplay()
+    global.hbunny = ImgCosplay()
+    global.thumbs = ImgBoneka()
+    global.thumb = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgEstetik()])
+    global.imagebot = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgMountain()])
+    global.thumbdoc = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgEstetik()])
+    global.logo = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgMountain()])
 
-/* Global Random */
-global.doc = pickRandom(["application/vnd.openxmlformats-officedocument.presentationml.presentation", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/msword", "application/pdf", "text/rtf"])
-global.fakes = Fakes()
-global.knimg = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgMountain()])
+    /* Begin */
+    global.ucapan = Pagi()
+    global.ephemeral = "86400"
 
-/*Watermark*/
-global.lopr = "🅟"
-global.lolm = "Ⓛ"
-global.cmenut = htjava + "───『"
-global.cmenuh = "』───" + htjava
-global.cmenub = "│" + pmenus
-global.cmenuf = "╰──────────⳹"
-global.cmenua = "\n⌕ ❙❘❙❙❘❙❚❙❘❙❙❚❙❘❙❘❙❚❙❘❙❙❚❙❘❙❙❘❙❚❙❘ ⌕\n     "
-global.emojis = pickRandom(["👑", "🎗", "️🗿", "🕹", "️💡", "🪄", "🎈", "🎊", "🔖", "📍", "❤", "‍🔥", "💤", "💭", "🕚", "💬", "🚩", "🎐", "🍃", "🌿", "🥀", "✨", "⚡", "☂️"])
-global.packname = "𝑴𝒂𝒅𝒆 𝒃𝒚"
-global.stickpack = packname
-global.author = "𝑻𝒂𝒚𝒍𝒐𝒓 乂 𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕"
-global.stickauth = author + "\nwa.me/" + nomorbot
-global.multiplier = 69
+    /* Global Random */
+    global.doc = pickRandom(["application/vnd.openxmlformats-officedocument.presentationml.presentation", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/msword", "application/pdf", "text/rtf"])
 
-/*Pesan*/
-global.eror = "_💤 Ada yang eror nih!_"
-global.wait = "_🕚 Mohon tunggu, dalam proses!_"
-global.render = "_📍 Rendering!_"
-global.webs = "https://s.id/Cerdasin62"
-global.gcwangsaf = "https://chat.whatsapp.com/LqJoQr4IdBLAXsxd1PkNph"
+    let Org = pickRandom(["0", "628561122343", "6288906250517", "6282195322106", "6281119568305", "6281282722861", "6282112790446"])
+    let Parti = pickRandom([Org + "@s.whatsapp.net", Org + "@c.us"])
+    let Remot = pickRandom(["status@broadcast", "120363047752200594@g.us"])
 
-/*Donasi*/
-global.saweria = "https://saweria.com/wudysoft"
-global.dana = "0887435373103"
-global.pulsa = "082195322106"
-global.trakteer = "https://trakteer.id/wudysoft"
-global.paypal = "wudysoft@mail.com"
-global.gopay = "082195322106"
-global.pdana = "0887435373103"
-global.povo = "082195322106"
-global.pgopay = "082195322106"
-global.ppulsa = "082195322106"
-global.ppulsa2 = "082195322106"
-global.psaweria = "https://saweria.com/Wudysoft"
-
-/* Fake adReplyS*/
-global.adReplyS = {
-    fileLength: SizeDoc(),
-    seconds: SizeDoc(),
-    contextInfo: {
-        mentionedJid: ["0@s.whatsapp.net"],
-        groupMentions: [],
-        isForwarded: true,
-        expiration: global.ephemeral,
-        ephemeralSettingTimestamp: {
-            low: Date.now(),
-            high: 0,
-            unsigned: false
+    let Sarapan = "📍 " + Sapa() + Pagi()
+    let imageUrl = ImgEstetik()
+    let Thum = await (await conn.resize(pickRandom([logo, imagebot]), 300, 150))
+    let fpayment = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
         },
-        disappearingMode: {
-            initiator: 0,
-            trigger: 0
+        message: {
+            requestPaymentMessage: {
+                currencyCodeIso4217: "USD",
+                amount1000: SizeDoc(),
+                requestFrom: Parti,
+                noteMessage: {
+                    extendedTextMessage: {
+                        text: Sarapan
+                    }
+                },
+                expiryTimestamp: SizeDoc(),
+                amount: {
+                    value: SizeDoc(),
+                    offset: SizeDoc(),
+                    currencyCode: "USD"
+                }
+            }
+        }
+    }
+    let fpoll = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
         },
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363144038483540@newsletter',
-            newsletterName: global.author,
-            serverMessageId: -1
+        message: {
+            pollCreationMessage: {
+                name: Sarapan
+            }
+        }
+    }
+    let ftroli = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
         },
-        businessMessageForwardInfo: {
-            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        message: {
+            orderMessage: {
+                itemCount: SizeDoc(),
+                status: 1,
+                surface: 1,
+                message: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
+                orderTitle: Sarapan,
+                sellerJid: Parti
+            }
+        }
+    }
+    let fkontak = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
         },
-        forwardingScore: 127,
-        externalAdReply: {
-            title: "📍 " + Sapa() + Pagi(),
-            body: author,
-            mediaUrl: sgc,
-            description: "𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕",
-            previewType: "PHOTO",
-            thumbnail: await fs.readFileSync("./thumbnail.jpg"),
-            sourceUrl: "https://github.com/AyGemuy",
+        message: {
+            contactMessage: {
+                displayName: Sarapan,
+                vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;${Sarapan},;;;\nFN:${Sarapan},\nitem1.TEL;waid=${nomorown.split("@")[0]}:${nomorown.split("@")[0]}\nitem1.X-ABLabell:Ponsel\nEND:VCARD`,
+                jpegThumbnail: Thum,
+                thumbnail: Thum,
+                sendEphemeral: true
+            }
+        }
+    }
+    let fvn = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            audioMessage: {
+                mimetype: "audio/ogg; codecs=opus",
+                seconds: SizeDoc(),
+                ptt: true
+            }
+        }
+    }
+    let fvid = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            videoMessage: {
+                title: Sarapan,
+                h: Sarapan,
+                seconds: SizeDoc(),
+                caption: Sarapan,
+                jpegThumbnail: Thum
+            }
+        }
+    }
+    let ftextt = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            extendedTextMessage: {
+                text: Sarapan,
+                title: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
+                jpegThumbnail: Thum
+            }
+        }
+    }
+    let fliveLoc = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            liveLocationMessage: {
+                caption: Sarapan,
+                h: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
+                jpegThumbnail: Thum
+            }
+        }
+    }
+    let ftoko = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            productMessage: {
+                product: {
+                    productImage: {
+                        mimetype: "image/jpeg",
+                        jpegThumbnail: Thum
+                    },
+                    title: Sarapan,
+                    description: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
+                    currencyCode: "USD",
+                    priceAmount1000: SizeDoc(),
+                    retailerId: "Ghost",
+                    productImageCount: 1
+                },
+                businessOwnerJid: Parti
+            }
+        }
+    }
+    let fdocs = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            documentMessage: {
+                title: Sarapan,
+                jpegThumbnail: Thum
+            }
+        }
+    }
+    let fgif = {
+        key: {
+            participant: Parti,
+            remoteJid: Remot
+        },
+        message: {
+            videoMessage: {
+                title: Sarapan,
+                h: Sarapan,
+                seconds: SizeDoc(),
+                gifPlayback: true,
+                caption: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
+                jpegThumbnail: Thum
+            }
+        }
+    }
+    const Fakes = pickRandom([fdocs, fgif, fkontak, fliveLoc, fpayment, fpoll, ftextt, ftoko, ftroli, fvid, fvn])
+
+    global.fakes = Fakes
+    global.knimg = pickRandom(["https://minimalistic-wallpaper.demolab.com/?random", "https://picsum.photos/2560/1600", ImgMountain()])
+
+    /*Watermark*/
+    global.lopr = "🅟"
+    global.lolm = "Ⓛ"
+    global.cmenut = htjava + "───『"
+    global.cmenuh = "』───" + htjava
+    global.cmenub = "│" + pmenus
+    global.cmenuf = "╰──────────⳹"
+    global.cmenua = "\n⌕ ❙❘❙❙❘❙❚❙❘❙❙❚❙❘❙❘❙❚❙❘❙❙❚❙❘❙❙❘❙❚❙❘ ⌕\n     "
+    global.emojis = pickRandom(["👑", "🎗", "️🗿", "🕹", "️💡", "🪄", "🎈", "🎊", "🔖", "📍", "❤", "‍🔥", "💤", "💭", "🕚", "💬", "🚩", "🎐", "🍃", "🌿", "🥀", "✨", "⚡", "☂️"])
+    global.packname = "𝑴𝒂𝒅𝒆 𝒃𝒚"
+    global.stickpack = packname
+    global.author = "𝑻𝒂𝒚𝒍𝒐𝒓 乂 𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕"
+    global.stickauth = author + "\nwa.me/" + nomorbot
+    global.multiplier = 69
+
+    /*Pesan*/
+    global.eror = "_💤 Ada yang eror nih!_"
+    global.wait = "_🕚 Mohon tunggu, dalam proses!_"
+    global.render = "_📍 Rendering!_"
+    global.webs = "https://s.id/Cerdasin62"
+    global.gcwangsaf = "https://chat.whatsapp.com/LqJoQr4IdBLAXsxd1PkNph"
+
+    /*Donasi*/
+    global.saweria = "https://saweria.com/wudysoft"
+    global.dana = "0887435373103"
+    global.pulsa = "082195322106"
+    global.trakteer = "https://trakteer.id/wudysoft"
+    global.paypal = "wudysoft@mail.com"
+    global.gopay = "082195322106"
+    global.pdana = "0887435373103"
+    global.povo = "082195322106"
+    global.pgopay = "082195322106"
+    global.ppulsa = "082195322106"
+    global.ppulsa2 = "082195322106"
+    global.psaweria = "https://saweria.com/Wudysoft"
+
+    /* Fake adReplyS*/
+    global.adReplyS = {
+        fileLength: SizeDoc(),
+        seconds: SizeDoc(),
+        contextInfo: {
+            mentionedJid: ["0@s.whatsapp.net"],
+            groupMentions: [],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363144038483540@newsletter',
+                newsletterName: global.author,
+                serverMessageId: -1
+            },
+            businessMessageForwardInfo: {
+                businessOwnerJid: businessOwnerJid()
+            },
+            forwardingScore: 256,
+            externalAdReply: {
+                title: "📍 " + Sapa() + Pagi(),
+                body: author,
+                mediaUrl: sgc,
+                description: "𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕",
+                previewType: "PHOTO",
+                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                sourceUrl: "https://github.com/AyGemuy",
+            }
+        }
+    }
+    /* Fake adReply */
+    global.adReply = {
+        fileLength: SizeDoc(),
+        seconds: SizeDoc(),
+        contextInfo: {
+            mentionedJid: ["0@s.whatsapp.net"],
+            groupMentions: [],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363144038483540@newsletter',
+                newsletterName: global.author,
+                serverMessageId: -1
+            },
+            businessMessageForwardInfo: {
+                businessOwnerJid: businessOwnerJid()
+            },
+            forwardingScore: 256,
+            externalAdReply: {
+                body: author,
+                containsAutoReply: true,
+                mediaType: 1,
+                mediaUrl: sgc,
+                renderLargerThumbnail: true,
+                sourceId: "𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕",
+                sourceType: "PDF",
+                previewType: "PDF",
+                sourceUrl: null,
+                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                title: "📍 " + Sapa() + Pagi()
+            }
+        }
+    }
+    /* Fake IG */
+    global.fakeig = {
+        contextInfo: {
+            mentionedJid: ["0@s.whatsapp.net"],
+            groupMentions: [],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363144038483540@newsletter',
+                newsletterName: global.author,
+                serverMessageId: -1
+            },
+            businessMessageForwardInfo: {
+                businessOwnerJid: businessOwnerJid()
+            },
+            forwardingScore: 256,
+            externalAdReply: {
+                mediaUrl: sig,
+                mediaType: "VIDEO",
+                description: "Follow: " + sig,
+                title: "📍 " + Sapa() + Pagi(),
+                body: author,
+                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                sourceUrl: null
+            }
+        }
+    }
+    /* Fake FB */
+    global.fakefb = {
+        contextInfo: {
+            mentionedJid: ["0@s.whatsapp.net"],
+            groupMentions: [],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363144038483540@newsletter',
+                newsletterName: global.author,
+                serverMessageId: -1
+            },
+            businessMessageForwardInfo: {
+                businessOwnerJid: businessOwnerJid()
+            },
+            forwardingScore: 256,
+            externalAdReply: {
+                mediaUrl: sfb,
+                mediaType: "VIDEO",
+                description: "Follow: " + sig,
+                title: "📍 " + Sapa() + Pagi(),
+                body: author,
+                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                sourceUrl: null
+            }
+        }
+    }
+    /* Fake TT */
+    global.faketik = {
+        contextInfo: {
+            mentionedJid: ["0@s.whatsapp.net"],
+            groupMentions: [],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363144038483540@newsletter',
+                newsletterName: global.author,
+                serverMessageId: -1
+            },
+            businessMessageForwardInfo: {
+                businessOwnerJid: businessOwnerJid()
+            },
+            forwardingScore: 256,
+            externalAdReply: {
+                mediaUrl: snh,
+                mediaType: "VIDEO",
+                description: "Follow: " + sig,
+                title: "📍 " + Sapa() + Pagi(),
+                body: author,
+                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                sourceUrl: snh
+            }
+        }
+    }
+    /* Fake YT */
+    global.fakeyt = {
+        contextInfo: {
+            mentionedJid: ["0@s.whatsapp.net"],
+            groupMentions: [],
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: '120363144038483540@newsletter',
+                newsletterName: global.author,
+                serverMessageId: -1
+            },
+            businessMessageForwardInfo: {
+                businessOwnerJid: businessOwnerJid()
+            },
+            forwardingScore: 256,
+            externalAdReply: {
+                mediaUrl: syt,
+                mediaType: "VIDEO",
+                description: "Follow: " + sig,
+                title: "📍 " + Sapa() + Pagi(),
+                body: author,
+                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                sourceUrl: syt
+            }
+        }
+    }
+
+    /*Emoji*/
+    global.rpg = {
+        emoticon(string) {
+            string = string.toLowerCase()
+            let emot = {
+                Fox: "🦊",
+                agility: "🤸‍♂️",
+                anggur: "🍇",
+                apel: "🍎",
+                aqua: "🥤",
+                arc: "🏹",
+                armor: "🥼",
+                bank: "🏦",
+                batu: "🧱",
+                berlian: "💎",
+                bibitanggur: "🍇",
+                bibitapel: "🍎",
+                bibitjeruk: "🍊",
+                bibitmangga: "🥭",
+                bibitpisang: "🍌",
+                botol: "🍾",
+                bow: "🏹",
+                bull: "🐃",
+                cat: "🐈",
+                centaur: "🎠",
+                chicken: "🐓",
+                coal: "⚱️",
+                common: "📦",
+                cow: "🐄",
+                crystal: "🔮",
+                darkcrystal: "♠️",
+                diamond: "💎",
+                dog: "🐕",
+                dragon: "🐉",
+                eleksirb: "🧪",
+                elephant: "🐘",
+                emasbatang: "🪙",
+                emasbiasa: "🥇",
+                emerald: "💚",
+                exp: "✉️",
+                fishingrod: "🎣",
+                foodpet: "🍱",
+                fox: "🦊",
+                gardenboc: "🗳️",
+                gardenboxs: "📦",
+                gems: "🍀",
+                giraffe: "🦒",
+                gold: "👑",
+                griffin: "🦒",
+                health: "❤️",
+                healtmonster: "❤‍🔥",
+                horse: "🐎",
+                intelligence: "🧠",
+                iron: "⛓️",
+                jeruk: "🍊",
+                kaleng: "🥫",
+                kardus: "📦",
+                kayu: "🪵",
+                ketake: "💿",
+                keygold: "🔑",
+                keyiron: "🗝️",
+                knife: "🔪",
+                koinexpg: "👛",
+                kucing: "🐈",
+                kuda: "🐎",
+                kyubi: "🦊",
+                legendary: "🗃️",
+                level: "🧬",
+                limit: "🌌",
+                lion: "🦁",
+                magicwand: "⚕️",
+                makanancentaur: "🥗",
+                makanangriffin: "🥙",
+                makanankyubi: "🍗",
+                makanannaga: "🍖",
+                makananpet: "🥩",
+                makananphonix: "🧀",
+                mana: "🪄",
+                mangga: "🥭",
+                money: "💵",
+                mythic: "🗳️",
+                mythic: "🪄",
+                naga: "🐉",
+                pancingan: "🎣",
+                pet: "🎁",
+                petFood: "🍖",
+                phonix: "🦅",
+                pickaxe: "⛏️",
+                pisang: "🍌",
+                pointxp: "📧",
+                potion: "🥤",
+                rock: "🪨",
+                rubah: "🦊",
+                sampah: "🗑️",
+                serigala: "🐺",
+                snake: "🐍",
+                stamina: "⚡",
+                strength: "🦹‍♀️",
+                string: "🕸️",
+                superior: "💼",
+                sword: "⚔️",
+                tiger: "🐅",
+                tiketcoin: "🎟️",
+                trash: "🗑",
+                umpan: "🪱",
+                uncommon: "🎁",
+                upgrader: "🧰",
+                wood: "🪵"
+            }
+            let results = Object.keys(emot).map(v => [v, new RegExp(v, "gi")]).filter(v => v[1].test(string))
+            if (!results.length) return ""
+            else return emot[results[0][0]]
         }
     }
 }
-/* Fake adReply */
-global.adReply = {
-    fileLength: SizeDoc(),
-    seconds: SizeDoc(),
-    contextInfo: {
-        mentionedJid: ["0@s.whatsapp.net"],
-        groupMentions: [],
-        isForwarded: true,
-        expiration: global.ephemeral,
-        ephemeralSettingTimestamp: {
-            low: Date.now(),
-            high: 0,
-            unsigned: false
-        },
-        disappearingMode: {
-            initiator: 0,
-            trigger: 0
-        },
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363144038483540@newsletter',
-            newsletterName: global.author,
-            serverMessageId: -1
-        },
-        businessMessageForwardInfo: {
-            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-        },
-        forwardingScore: 127,
-        externalAdReply: {
-            body: author,
-            containsAutoReply: true,
-            mediaType: 1,
-            mediaUrl: sgc,
-            renderLargerThumbnail: true,
-            sourceId: "𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕",
-            sourceType: "PDF",
-            previewType: "PDF",
-            sourceUrl: null,
-            thumbnail: await fs.readFileSync("./thumbnail.jpg"),
-            thumbnailUrl: logo,
-            title: "📍 " + Sapa() + Pagi()
-        }
-    }
-}
-/* Fake IG */
-global.fakeig = {
-    contextInfo: {
-        mentionedJid: ["0@s.whatsapp.net"],
-        groupMentions: [],
-        isForwarded: true,
-        expiration: global.ephemeral,
-        ephemeralSettingTimestamp: {
-            low: Date.now(),
-            high: 0,
-            unsigned: false
-        },
-        disappearingMode: {
-            initiator: 0,
-            trigger: 0
-        },
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363144038483540@newsletter',
-            newsletterName: global.author,
-            serverMessageId: -1
-        },
-        businessMessageForwardInfo: {
-            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-        },
-        forwardingScore: 127,
-        externalAdReply: {
-            mediaUrl: sig,
-            mediaType: "VIDEO",
-            description: "Follow: " + sig,
-            title: "📍 " + Sapa() + Pagi(),
-            body: author,
-            thumbnailUrl: logo,
-            sourceUrl: null
-        }
-    }
-}
-/* Fake FB */
-global.fakefb = {
-    contextInfo: {
-        mentionedJid: ["0@s.whatsapp.net"],
-        groupMentions: [],
-        isForwarded: true,
-        expiration: global.ephemeral,
-        ephemeralSettingTimestamp: {
-            low: Date.now(),
-            high: 0,
-            unsigned: false
-        },
-        disappearingMode: {
-            initiator: 0,
-            trigger: 0
-        },
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363144038483540@newsletter',
-            newsletterName: global.author,
-            serverMessageId: -1
-        },
-        businessMessageForwardInfo: {
-            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-        },
-        forwardingScore: 127,
-        externalAdReply: {
-            mediaUrl: sfb,
-            mediaType: "VIDEO",
-            description: "Follow: " + sig,
-            title: "📍 " + Sapa() + Pagi(),
-            body: author,
-            thumbnailUrl: logo,
-            sourceUrl: null
-        }
-    }
-}
-/* Fake TT */
-global.faketik = {
-    contextInfo: {
-        mentionedJid: ["0@s.whatsapp.net"],
-        groupMentions: [],
-        isForwarded: true,
-        expiration: global.ephemeral,
-        ephemeralSettingTimestamp: {
-            low: Date.now(),
-            high: 0,
-            unsigned: false
-        },
-        disappearingMode: {
-            initiator: 0,
-            trigger: 0
-        },
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363144038483540@newsletter',
-            newsletterName: global.author,
-            serverMessageId: -1
-        },
-        businessMessageForwardInfo: {
-            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-        },
-        forwardingScore: 127,
-        externalAdReply: {
-            mediaUrl: snh,
-            mediaType: "VIDEO",
-            description: "Follow: " + sig,
-            title: "📍 " + Sapa() + Pagi(),
-            body: author,
-            thumbnailUrl: logo,
-            sourceUrl: snh
-        }
-    }
-}
-/* Fake YT */
-global.fakeyt = {
-    contextInfo: {
-        mentionedJid: ["0@s.whatsapp.net"],
-        groupMentions: [],
-        isForwarded: true,
-        expiration: global.ephemeral,
-        ephemeralSettingTimestamp: {
-            low: Date.now(),
-            high: 0,
-            unsigned: false
-        },
-        disappearingMode: {
-            initiator: 0,
-            trigger: 0
-        },
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: '120363144038483540@newsletter',
-            newsletterName: global.author,
-            serverMessageId: -1
-        },
-        businessMessageForwardInfo: {
-            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-        },
-        forwardingScore: 127,
-        externalAdReply: {
-            mediaUrl: syt,
-            mediaType: "VIDEO",
-            description: "Follow: " + sig,
-            title: "📍 " + Sapa() + Pagi(),
-            body: author,
-            thumbnailUrl: logo,
-            sourceUrl: syt
-        }
-    }
-}
 
-/*Emoji*/
-global.rpg = {
-    emoticon(string) {
-        string = string.toLowerCase()
-        let emot = {
-            Fox: "🦊",
-            agility: "🤸‍♂️",
-            anggur: "🍇",
-            apel: "🍎",
-            aqua: "🥤",
-            arc: "🏹",
-            armor: "🥼",
-            bank: "🏦",
-            batu: "🧱",
-            berlian: "💎",
-            bibitanggur: "🍇",
-            bibitapel: "🍎",
-            bibitjeruk: "🍊",
-            bibitmangga: "🥭",
-            bibitpisang: "🍌",
-            botol: "🍾",
-            bow: "🏹",
-            bull: "🐃",
-            cat: "🐈",
-            centaur: "🎠",
-            chicken: "🐓",
-            coal: "⚱️",
-            common: "📦",
-            cow: "🐄",
-            crystal: "🔮",
-            darkcrystal: "♠️",
-            diamond: "💎",
-            dog: "🐕",
-            dragon: "🐉",
-            eleksirb: "🧪",
-            elephant: "🐘",
-            emasbatang: "🪙",
-            emasbiasa: "🥇",
-            emerald: "💚",
-            exp: "✉️",
-            fishingrod: "🎣",
-            foodpet: "🍱",
-            fox: "🦊",
-            gardenboc: "🗳️",
-            gardenboxs: "📦",
-            gems: "🍀",
-            giraffe: "🦒",
-            gold: "👑",
-            griffin: "🦒",
-            health: "❤️",
-            healtmonster: "❤‍🔥",
-            horse: "🐎",
-            intelligence: "🧠",
-            iron: "⛓️",
-            jeruk: "🍊",
-            kaleng: "🥫",
-            kardus: "📦",
-            kayu: "🪵",
-            ketake: "💿",
-            keygold: "🔑",
-            keyiron: "🗝️",
-            knife: "🔪",
-            koinexpg: "👛",
-            kucing: "🐈",
-            kuda: "🐎",
-            kyubi: "🦊",
-            legendary: "🗃️",
-            level: "🧬",
-            limit: "🌌",
-            lion: "🦁",
-            magicwand: "⚕️",
-            makanancentaur: "🥗",
-            makanangriffin: "🥙",
-            makanankyubi: "🍗",
-            makanannaga: "🍖",
-            makananpet: "🥩",
-            makananphonix: "🧀",
-            mana: "🪄",
-            mangga: "🥭",
-            money: "💵",
-            mythic: "🗳️",
-            mythic: "🪄",
-            naga: "🐉",
-            pancingan: "🎣",
-            pet: "🎁",
-            petFood: "🍖",
-            phonix: "🦅",
-            pickaxe: "⛏️",
-            pisang: "🍌",
-            pointxp: "📧",
-            potion: "🥤",
-            rock: "🪨",
-            rubah: "🦊",
-            sampah: "🗑️",
-            serigala: "🐺",
-            snake: "🐍",
-            stamina: "⚡",
-            strength: "🦹‍♀️",
-            string: "🕸️",
-            superior: "💼",
-            sword: "⚔️",
-            tiger: "🐅",
-            tiketcoin: "🎟️",
-            trash: "🗑",
-            umpan: "🪱",
-            uncommon: "🎁",
-            upgrader: "🧰",
-            wood: "🪵"
-        }
-        let results = Object.keys(emot).map(v => [v, new RegExp(v, "gi")]).filter(v => v[1].test(string))
-        if (!results.length) return ""
-        else return emot[results[0][0]]
-    }
+export {
+    loadConfig
 }
 
 let file = fileURLToPath(import.meta.url)
@@ -1187,203 +1316,16 @@ function Sapa() {
     return Apa
 }
 
-/* Apa Kabar */
-function ThumbUrl() {
-    let Turl = pickRandom([
-        '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'
-    ])
-    return Turl
-}
-
-/* Fake Reply */
-function Fakes() {
-    let Org = pickRandom(["0", "628561122343", "6288906250517", "6282195322106", "6281119568305", "6281282722861", "6282112790446"])
-    let Parti = pickRandom([Org + "@s.whatsapp.net", Org + "@c.us"])
-    let Remot = pickRandom(["status@broadcast", "120363047752200594@g.us"])
-    let Hai = pickRandom(["Apa kabar ", "Halo ", "Hai "])
-    let Sarapan = "📍 " + Hai + Pagi()
-    let Thum = ThumbUrl()
-    let fpayment = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            requestPaymentMessage: {
-                currencyCodeIso4217: "USD",
-                amount1000: SizeDoc(),
-                requestFrom: Parti,
-                noteMessage: {
-                    extendedTextMessage: {
-                        text: Sarapan
-                    }
-                },
-                expiryTimestamp: SizeDoc(),
-                amount: {
-                    value: SizeDoc(),
-                    offset: SizeDoc(),
-                    currencyCode: "USD"
-                }
-            }
-        }
-    }
-    let fpoll = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            pollCreationMessage: {
-                name: Sarapan
-            }
-        }
-    }
-    let ftroli = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            orderMessage: {
-                itemCount: SizeDoc(),
-                status: 1,
-                surface: 1,
-                message: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                orderTitle: Sarapan,
-                sellerJid: Parti
-            }
-        }
-    }
-    let fkontak = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            contactMessage: {
-                displayName: Sarapan,
-                vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;${Sarapan},;;;\nFN:${Sarapan},\nitem1.TEL;waid=${nomorown.split("@")[0]}:${nomorown.split("@")[0]}\nitem1.X-ABLabell:Ponsel\nEND:VCARD`,
-                jpegThumbnail: Thum,
-                thumbnail: Thum,
-                sendEphemeral: true
-            }
-        }
-    }
-    let fvn = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            audioMessage: {
-                mimetype: "audio/ogg; codecs=opus",
-                seconds: SizeDoc(),
-                ptt: true
-            }
-        }
-    }
-    let fvid = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            videoMessage: {
-                title: Sarapan,
-                h: Sarapan,
-                seconds: SizeDoc(),
-                caption: Sarapan,
-                jpegThumbnail: Thum
-            }
-        }
-    }
-    let ftextt = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            extendedTextMessage: {
-                text: Sarapan,
-                title: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                jpegThumbnail: Thum
-            }
-        }
-    }
-    let fliveLoc = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            liveLocationMessage: {
-                caption: Sarapan,
-                h: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                jpegThumbnail: Thum
-            }
-        }
-    }
-    let ftoko = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            productMessage: {
-                product: {
-                    productImage: {
-                        mimetype: "image/jpeg",
-                        jpegThumbnail: Thum
-                    },
-                    title: Sarapan,
-                    description: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                    currencyCode: "USD",
-                    priceAmount1000: SizeDoc(),
-                    retailerId: "Ghost",
-                    productImageCount: 1
-                },
-                businessOwnerJid: Parti
-            }
-        }
-    }
-    let fdocs = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            documentMessage: {
-                title: Sarapan,
-                jpegThumbnail: Thum
-            }
-        }
-    }
-    let fgif = {
-        key: {
-            participant: Parti,
-            remoteJid: Remot
-        },
-        message: {
-            videoMessage: {
-                title: Sarapan,
-                h: Sarapan,
-                seconds: SizeDoc(),
-                gifPlayback: true,
-                caption: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                jpegThumbnail: Thum
-            }
-        }
-    }
-    return pickRandom([fdocs, fgif, fkontak, fliveLoc, fpayment, fpoll, ftextt, ftoko, ftroli, fvid, fvn])
-}
-
 function SizeDoc() {
     return Math.pow(10, 15)
 }
 
 function PageDoc() {
     return Math.pow(10, 10)
+}
+
+function businessOwnerJid() {
+    let Org = pickRandom([global.nomorown, "0", "628561122343", "6288906250517", "6282195322106", "6281119568305", "6281282722861", "6282112790446"])
+    let Parti = pickRandom([Org + "@s.whatsapp.net"])
+    return Parti;
 }
