@@ -26,6 +26,7 @@ global.__require = function require(dir = import.meta.url) {
 }
 
 import * as ws from 'ws';
+import * as glob from 'glob';
 import {
     readdirSync,
     statSync,
@@ -42,7 +43,9 @@ import {
     spawn,
     exec
 } from 'child_process';
-import { execSync } from 'child_process';
+import {
+    execSync
+} from 'child_process';
 import lodash from 'lodash';
 import chalk from 'chalk';
 import syntaxerror from 'syntax-error';
@@ -388,39 +391,26 @@ if (!opts['test']) {
 
 if (opts['server'])(await import('./server.js')).default(global.conn, PORT);
 
-import { readdir, stat, unlink } from 'fs';
-
-const readdirAsync = promisify(readdir);
-const statAsync = promisify(stat);
-const unlinkAsync = promisify(unlink);
-const mkdirSyncAsync = promisify(mkdirSync);
-
 async function clearTmp() {
     try {
         const tmp = [tmpdir(), join(__dirname, "./tmp")];
         const filenames = await Promise.all(tmp.map(async (dirname) => {
             try {
-                const files = await readdirAsync(dirname);
-                return files
-                    .filter(async (file) => {
-                        try {
-                            const stats = await statAsync(join(dirname, file));
-                            return stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 3;
-                        } catch (err) {
-                            console.error(`Error reading stats for ${file}: ${err.message}`);
-                            return false;
+                const files = await readdirSync(dirname);
+                return Promise.all(files.map(async (file) => {
+                    try {
+                        const filePath = join(dirname, file);
+                        const stats = await statSync(filePath);
+                        if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 3) {
+                            await unlinkSync(filePath);
+                            console.log("Successfully cleared tmp:", filePath);
+                            return filePath;
                         }
-                    })
-                    .map(async (file) => {
-                        try {
-                            await unlinkAsync(join(dirname, file));
-                            console.log(chalk.cyanBright("Successfully cleared tmp"));
-                            return join(dirname, file);
-                        } catch (err) {
-                            console.error(`Error unlinking ${file}: ${err.message}`);
-                            return null;
-                        }
-                    });
+                    } catch (err) {
+                        console.error(`Error processing ${file}: ${err.message}`);
+                        return null;
+                    }
+                }));
             } catch (err) {
                 console.error(`Error reading directory ${dirname}: ${err.message}`);
                 return [];
@@ -435,14 +425,14 @@ async function clearTmp() {
 
 async function clearSessions(folder = "./TaylorSession") {
     try {
-        const filenames = await readdirAsync(folder);
+        const filenames = await readdirSync(folder);
         const deletedFiles = await Promise.all(filenames.map(async (file) => {
             try {
                 const filePath = join(folder, file);
-                const stats = await statAsync(filePath);
-                if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 120) {
-                    await unlinkAsync(filePath);
-                    console.log("Deleted sessions", filePath);
+                const stats = await statSync(filePath);
+                if (stats.isFile() && Date.now() - stats.mtimeMs >= 1000 * 60 * 120 && file !== 'creds.json') {
+                    await unlinkSync(filePath);
+                    console.log("Deleted session:", filePath);
                     return filePath;
                 }
                 return null;
@@ -461,10 +451,12 @@ async function clearSessions(folder = "./TaylorSession") {
 async function purgeSession() {
     try {
         const prekeyFolder = './TaylorSession';
-        const prekeyFiles = await readdirAsync(prekeyFolder);
+        const prekeyFiles = await readdirSync(prekeyFolder);
         await Promise.all(prekeyFiles.map(async (file) => {
             try {
-                await unlinkAsync(join(prekeyFolder, file));
+                if (file !== 'creds.json') {
+                    await unlinkSync(join(prekeyFolder, file));
+                }
             } catch (err) {
                 console.error(`Error unlinking ${file}: ${err.message}`);
             }
@@ -480,20 +472,30 @@ async function purgeSessionSB() {
         await Promise.all(directories.map(async (folderPath) => {
             try {
                 if (!existsSync(folderPath)) {
-                    await mkdirSyncAsync(folderPath);
+                    await mkdirSync(folderPath);
                     console.log(`\nFolder ${folderPath} successfully created.`);
                 }
-                const listaDirectorios = await readdirAsync(folderPath);
+                const listaDirectorios = await readdirSync(folderPath);
                 await Promise.all(listaDirectorios.map(async (filesInDir) => {
                     const dirPath = join(folderPath, filesInDir);
-                    const SBprekeyFiles = await readdirAsync(dirPath);
-                    await Promise.all(SBprekeyFiles.map(async (fileInDir) => {
-                        try {
-                            await unlinkAsync(join(dirPath, fileInDir));
-                        } catch (err) {
-                            console.error(`Error unlinking ${fileInDir}: ${err.message}`);
+
+                    try {
+                        const isDirectory = (await statSync(dirPath)).isDirectory();
+                        if (isDirectory) {
+                            const SBprekeyFiles = await readdirSync(dirPath);
+                            await Promise.all(SBprekeyFiles.map(async (fileInDir) => {
+                                try {
+                                    if (fileInDir !== 'creds.json') {
+                                        await unlinkSync(join(dirPath, fileInDir));
+                                    }
+                                } catch (err) {
+                                    console.error(`Error unlinking ${fileInDir}: ${err.message}`);
+                                }
+                            }));
                         }
-                    }));
+                    } catch (err) {
+                        console.error(`Error checking directory ${dirPath}: ${err.message}`);
+                    }
                 }));
             } catch (err) {
                 console.error(`Error in purgeSessionSB: ${err.message}`);
@@ -509,13 +511,13 @@ async function purgeOldFiles() {
         const directories = ['./TaylorSession/', './jadibot/'];
         const oneHourAgo = Date.now() - (60 * 60 * 1000);
         await Promise.all(directories.map(async (dir) => {
-            const files = await readdirAsync(dir);
+            const files = await readdirSync(dir);
             await Promise.all(files.map(async (file) => {
                 try {
                     const filePath = join(dir, file);
-                    const stats = await statAsync(filePath);
+                    const stats = await statSync(filePath);
                     if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') {
-                        await unlinkAsync(filePath);
+                        await unlinkSync(filePath);
                         console.log(`\nFile ${file} successfully deleted`);
                     } else {
                         console.warn(`\nFile ${file} not deleted`);
@@ -553,13 +555,14 @@ async function connectionUpdate(update) {
         );
     }
     if (connection === "open") {
-        const {
-            jid,
-            name
-        } = conn.user;
-        const currentTime = new Date();
-        const pingStart = new Date();
-        const infoMsg = `*Bot Info:*
+        try {
+            const {
+                jid,
+                name
+            } = conn.user;
+            const currentTime = new Date();
+            const pingStart = new Date();
+            const infoMsg = `*Bot Info:*
    
 *Current Time:* ${currentTime}
 *Name:* ${name || 'Taylor'}
@@ -569,15 +572,18 @@ async function connectionUpdate(update) {
 *Time:* ${currentTime.toLocaleTimeString()}
 *Day:* ${currentTime.toLocaleDateString('id-ID', { weekday: 'long' })}
 *Description:* Bot ${name || 'Taylor'} is now active.`;
-        await conn.reply(
-            nomorown + "@s.whatsapp.net",
-            infoMsg,
-            null, {
-                contextInfo: {
-                    mentionedJid: [nomorown + "@s.whatsapp.net", jid]
-                },
-            }
-        );
+            await conn.reply(
+                nomorown + "@s.whatsapp.net",
+                infoMsg,
+                null, {
+                    contextInfo: {
+                        mentionedJid: [nomorown + "@s.whatsapp.net", jid]
+                    },
+                }
+            );
+        } catch (e) {
+            console.log('Bot is now active.');
+        }
         conn.logger.info(chalk.yellow('\n🚩 R E A D Y'));
     }
     if (isOnline == true) {
@@ -590,29 +596,29 @@ async function connectionUpdate(update) {
         conn.logger.warn(chalk.yellow("Menunggu Pesan Baru"));
     }
 
-if (!pairingCode && !useMobile && qr !== 0 && qr !== undefined && connection === "close") {
-    conn.logger.error(chalk.yellow(`\n🚩 Koneksi ditutup, harap hapus folder ${global.authFile} dan pindai ulang kode QR`));
+    if (!pairingCode && !useMobile && qr !== 0 && qr !== undefined && connection === "close") {
+        conn.logger.error(chalk.yellow(`\n🚩 Koneksi ditutup, harap hapus folder ${global.authFile} dan pindai ulang kode QR`));
 
-    try {
-        execSync(`pkill -f "node index.js"`);
-        const stdout = execSync(`node index.js ${process.argv.slice(2).join(' ')}`);
-        console.log(`Restarted successfully: ${stdout}`);
-    } catch (err) {
-        console.error(`Error: ${err.message}`);
+        try {
+            execSync(`pkill -f "node index.js"`);
+            const stdout = execSync(`node index.js ${process.argv.slice(2).join(' ')}`);
+            console.log(`Restarted successfully: ${stdout}`);
+        } catch (err) {
+            console.error(`Error: ${err.message}`);
+        }
     }
-}
 
-if (!pairingCode && !useMobile && useQr && qr !== 0 && qr !== undefined && connection === "close") {
-    conn.logger.info(chalk.yellow(`\n🚩ㅤPindai kode QR ini, kode QR akan kedaluwarsa dalam 60 detik.`));
+    if (!pairingCode && !useMobile && useQr && qr !== 0 && qr !== undefined && connection === "close") {
+        conn.logger.info(chalk.yellow(`\n🚩ㅤPindai kode QR ini, kode QR akan kedaluwarsa dalam 60 detik.`));
 
-    try {
-        execSync(`pkill -f "node index.js"`);
-        const stdout = execSync(`node index.js ${process.argv.slice(2).join(' ')}`);
-        console.log(`Restarted successfully: ${stdout}`);
-    } catch (err) {
-        console.error(`Error: ${err.message}`);
+        try {
+            execSync(`pkill -f "node index.js"`);
+            const stdout = execSync(`node index.js ${process.argv.slice(2).join(' ')}`);
+            console.log(`Restarted successfully: ${stdout}`);
+        } catch (err) {
+            console.error(`Error: ${err.message}`);
+        }
     }
-}
 
 }
 
@@ -712,40 +718,46 @@ global.reloadHandler = async function(restatConn) {
 
 global.plugins = {};
 
-const pluginFilter = (filename) => /\.js$/.test(filename);
-
 async function filesInit() {
     try {
-        const require = createRequire(import.meta.url);
-        const glob = require('glob');
-
         const pluginsDirectory = path.join(__dirname, 'plugins');
         const pattern = path.join(pluginsDirectory, '**/*.js');
-        const CommandsFiles = await glob.sync(pattern);
-        const successMessages = [];
-        const errorMessages = [];
+        const CommandsFiles = await glob.sync(pattern, {
+            ignore: ['**/node_modules/**']
+        });
 
-        for (let file of CommandsFiles) {
+        const importPromises = CommandsFiles.map(async (file) => {
             const moduleName = '/' + path.relative(__dirname, file);
             try {
                 const module = await import(file);
                 global.plugins[moduleName] = module.default || module;
-                successMessages.push(moduleName);
+                return moduleName;
             } catch (e) {
                 conn.logger.error(e);
                 delete global.plugins[moduleName];
-                errorMessages.push(moduleName);
+                return {
+                    moduleName,
+                    filePath: file
+                };
             }
-        }
+        });
 
-        await conn.reply(
-            nomorown + "@s.whatsapp.net",
-            "*Loaded Plugins Report:*\n" +
-            "\n*Total Plugins:* " + CommandsFiles.length +
-            "\n*Success:* " + successMessages.length +
-            "\n*Error:* " + errorMessages.length +
-            "\n*Error List:*\n" + errorMessages.map((v, i) => (i + 1) + ". " + v).join('\n'), null
-        );
+        const results = await Promise.all(importPromises);
+        const successMessages = results.filter((result) => typeof result === 'string');
+        const errorMessages = results.filter((result) => typeof result === 'object');
+
+        try {
+            await conn.reply(
+                nomorown + "@s.whatsapp.net",
+                "*Loaded Plugins Report:*\n" +
+                "\n*Total Plugins:* " + CommandsFiles.length +
+                "\n*Success:* " + successMessages.length +
+                "\n*Error:* " + errorMessages.length +
+                (errorMessages.length > 0 ? "\n  - " + errorMessages.map((error) => `${error.moduleName} (${error.filePath})`).join('\n  - ') : ""), null
+            );
+        } catch (e) {
+            console.log('Bot loaded plugins.');
+        }
 
         conn.logger.warn("Loaded " + CommandsFiles.length + " JS Files total.");
         conn.logger.info("✅ Success Plugins:\n" + successMessages.length + " total.");
@@ -791,7 +803,7 @@ async function FileEv(type, file) {
 
 async function watchFiles() {
     try {
-    const pluginsPath = "plugins/**/*.js";
+        const pluginsPath = "plugins/**/*.js";
         const watcher = chokidar.watch(pluginsPath, {
             ignored: /(^|[\/\\])\../,
             persistent: true,
@@ -804,7 +816,7 @@ async function watchFiles() {
                 stabilityThreshold: 2000,
                 pollInterval: 100,
             },
-            usePolling: true, // Depending on your use case and environment
+            usePolling: true,
             interval: 300,
         });
 
@@ -892,7 +904,7 @@ const actions = [{
 
 for (const action of actions) {
     setInterval(async () => {
-        if (stopped === 'close' || !conn || !conn.user) return;
+        if (global.stopped === 'close' || !conn || !conn.user) return;
         await action.func();
         console.log(chalk.cyanBright(
             `\n╭───────────────────────────────────···\n│\n` +

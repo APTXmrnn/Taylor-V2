@@ -179,19 +179,26 @@ global.adReplyS = {
     seconds: SizeDoc(),
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-  groupMentions: [],
-  isForwarded: true,
-  expiration: global.ephemeral,
-  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
-  disappearingMode: { initiator: 0, trigger: 0 },
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363144038483540@newsletter',
-    newsletterName: 'Taylor By Wudy.',
-    serverMessageId: -1
-  },
-  businessMessageForwardInfo: {
-    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-  },
+        groupMentions: [],
+        isForwarded: true,
+        expiration: global.ephemeral,
+        ephemeralSettingTimestamp: {
+            low: Date.now(),
+            high: 0,
+            unsigned: false
+        },
+        disappearingMode: {
+            initiator: 0,
+            trigger: 0
+        },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363144038483540@newsletter',
+            newsletterName: global.author,
+            serverMessageId: -1
+        },
+        businessMessageForwardInfo: {
+            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        },
         forwardingScore: 127,
         externalAdReply: {
             title: "📍 " + Sapa() + Pagi(),
@@ -210,19 +217,26 @@ global.adReply = {
     seconds: SizeDoc(),
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-  groupMentions: [],
-  isForwarded: true,
-  expiration: global.ephemeral,
-  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
-  disappearingMode: { initiator: 0, trigger: 0 },
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363144038483540@newsletter',
-    newsletterName: 'Taylor By Wudy.',
-    serverMessageId: -1
-  },
-  businessMessageForwardInfo: {
-    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-  },
+        groupMentions: [],
+        isForwarded: true,
+        expiration: global.ephemeral,
+        ephemeralSettingTimestamp: {
+            low: Date.now(),
+            high: 0,
+            unsigned: false
+        },
+        disappearingMode: {
+            initiator: 0,
+            trigger: 0
+        },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363144038483540@newsletter',
+            newsletterName: global.author,
+            serverMessageId: -1
+        },
+        businessMessageForwardInfo: {
+            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        },
         forwardingScore: 127,
         externalAdReply: {
             body: author,
@@ -244,19 +258,26 @@ global.adReply = {
 global.fakeig = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-  groupMentions: [],
-  isForwarded: true,
-  expiration: global.ephemeral,
-  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
-  disappearingMode: { initiator: 0, trigger: 0 },
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363144038483540@newsletter',
-    newsletterName: 'Taylor By Wudy.',
-    serverMessageId: -1
-  },
-  businessMessageForwardInfo: {
-    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-  },
+        groupMentions: [],
+        isForwarded: true,
+        expiration: global.ephemeral,
+        ephemeralSettingTimestamp: {
+            low: Date.now(),
+            high: 0,
+            unsigned: false
+        },
+        disappearingMode: {
+            initiator: 0,
+            trigger: 0
+        },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363144038483540@newsletter',
+            newsletterName: global.author,
+            serverMessageId: -1
+        },
+        businessMessageForwardInfo: {
+            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        },
         forwardingScore: 127,
         externalAdReply: {
             mediaUrl: sig,
@@ -273,19 +294,26 @@ global.fakeig = {
 global.fakefb = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-  groupMentions: [],
-  isForwarded: true,
-  expiration: global.ephemeral,
-  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
-  disappearingMode: { initiator: 0, trigger: 0 },
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363144038483540@newsletter',
-    newsletterName: 'Taylor By Wudy.',
-    serverMessageId: -1
-  },
-  businessMessageForwardInfo: {
-    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-  },
+        groupMentions: [],
+        isForwarded: true,
+        expiration: global.ephemeral,
+        ephemeralSettingTimestamp: {
+            low: Date.now(),
+            high: 0,
+            unsigned: false
+        },
+        disappearingMode: {
+            initiator: 0,
+            trigger: 0
+        },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363144038483540@newsletter',
+            newsletterName: global.author,
+            serverMessageId: -1
+        },
+        businessMessageForwardInfo: {
+            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        },
         forwardingScore: 127,
         externalAdReply: {
             mediaUrl: sfb,
@@ -302,19 +330,26 @@ global.fakefb = {
 global.faketik = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-  groupMentions: [],
-  isForwarded: true,
-  expiration: global.ephemeral,
-  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
-  disappearingMode: { initiator: 0, trigger: 0 },
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363144038483540@newsletter',
-    newsletterName: 'Taylor By Wudy.',
-    serverMessageId: -1
-  },
-  businessMessageForwardInfo: {
-    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-  },
+        groupMentions: [],
+        isForwarded: true,
+        expiration: global.ephemeral,
+        ephemeralSettingTimestamp: {
+            low: Date.now(),
+            high: 0,
+            unsigned: false
+        },
+        disappearingMode: {
+            initiator: 0,
+            trigger: 0
+        },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363144038483540@newsletter',
+            newsletterName: global.author,
+            serverMessageId: -1
+        },
+        businessMessageForwardInfo: {
+            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        },
         forwardingScore: 127,
         externalAdReply: {
             mediaUrl: snh,
@@ -331,19 +366,26 @@ global.faketik = {
 global.fakeyt = {
     contextInfo: {
         mentionedJid: ["0@s.whatsapp.net"],
-  groupMentions: [],
-  isForwarded: true,
-  expiration: global.ephemeral,
-  ephemeralSettingTimestamp: { low: Date.now(), high: 0, unsigned: false },
-  disappearingMode: { initiator: 0, trigger: 0 },
-  forwardedNewsletterMessageInfo: {
-    newsletterJid: '120363144038483540@newsletter',
-    newsletterName: 'Taylor By Wudy.',
-    serverMessageId: -1
-  },
-  businessMessageForwardInfo: {
-    businessOwnerJid: global.nomorown + '@s.whatsapp.net'
-  },
+        groupMentions: [],
+        isForwarded: true,
+        expiration: global.ephemeral,
+        ephemeralSettingTimestamp: {
+            low: Date.now(),
+            high: 0,
+            unsigned: false
+        },
+        disappearingMode: {
+            initiator: 0,
+            trigger: 0
+        },
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: '120363144038483540@newsletter',
+            newsletterName: global.author,
+            serverMessageId: -1
+        },
+        businessMessageForwardInfo: {
+            businessOwnerJid: global.nomorown + '@s.whatsapp.net'
+        },
         forwardingScore: 127,
         externalAdReply: {
             mediaUrl: syt,
