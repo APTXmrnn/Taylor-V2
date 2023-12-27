@@ -1,4 +1,6 @@
-import { fetch } from "undici";
+import {
+    fetch
+} from "undici";
 import cheerio from "cheerio";
 
 let handler = async (m, {
@@ -35,7 +37,7 @@ let handler = async (m, {
         }
 
     } catch (e) {
-        await m.reply(`Error: ${e.message}`);
+        throw "Invalid input format. Use 1|text or 2|text.";
     }
 };
 
@@ -62,7 +64,9 @@ async function createConversation(api_key) {
             body: JSON.stringify(data),
         });
 
-        const { conversation_id } = await r.json();
+        const {
+            conversation_id
+        } = await r.json();
         return conversation_id;
 
     } catch (error) {
@@ -74,7 +78,7 @@ async function createChat(question, api_key, history = []) {
     try {
         let conversation_id = await createConversation(api_key);
         const data = {
-            anon_key,
+            anon_key: api_key,
             question,
             history: history,
             shouldStream: false,
