@@ -16,7 +16,9 @@ const fetchData = async (requestData) => {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const { data } = await response.json();
+        const {
+            data
+        } = await response.json();
         const items = data.items;
 
         if (!items || !Array.isArray(items) || items.length === 0) {
@@ -43,20 +45,29 @@ let handler = async (m, {
         text = m.quoted.text
     } else return m.reply("Masukkan pesan!")
     await m.reply(wait)
-    const requestData = { page: 1, page_size: pagePre, order_by: 'new', type: 'community', keyword: text, tags: [] };
-try {
-     const result = await fetchData(requestData);
-     await conn.sendMessage(m.chat, {
-                image: { url: result.banner.url },
-                caption: `Prompt: ${result.prompt}\nModel id: ${result.model_id}\nAuthor: ${result.author.name}`,
-                mentions: [m.sender]
-            }, {
-                quoted: m
-            });
- } catch (error) {
-     console.error('Error in example usage:', error);
-     await m.reply(eror);
- }
+    const requestData = {
+        page: 1,
+        page_size: pagePre,
+        order_by: 'new',
+        type: 'community',
+        keyword: text,
+        tags: []
+    };
+    try {
+        const result = await fetchData(requestData);
+        await conn.sendMessage(m.chat, {
+            image: {
+                url: result.banner.url
+            },
+            caption: `Prompt: ${result.prompt}\nModel id: ${result.model_id}\nAuthor: ${result.author.name}`,
+            mentions: [m.sender]
+        }, {
+            quoted: m
+        });
+    } catch (error) {
+        console.error('Error in example usage:', error);
+        await m.reply(eror);
+    }
 }
 handler.help = ["seaart"]
 handler.tags = ["ai"]
