@@ -76,6 +76,9 @@ import {
     mongoDB,
     mongoDBV2
 } from './lib/mongoDB.js';
+import {
+    cloudDBAdapter
+} from './lib/cloudDBAdapter.js';
 
 const {
     DisconnectReason,
@@ -110,6 +113,9 @@ const rl = readline.createInterface({
     output: process.stdout
 })
 const question = (text) => new Promise((resolve) => rl.question(text, resolve))
+const logSuccess = (message) => console.log(chalk.green(message));
+const logError = (message) => console.error(chalk.red(message));
+
 import NodeCache from "node-cache"
 const msgRetryCounterCache = new NodeCache()
 const {
@@ -138,7 +144,12 @@ global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse()
 const symbolRegex = /^[^\w\s\d]/u;
 const emojiAndSymbolRegex = new RegExp(`(${symbolRegex.source}|${emojiRegex().source})`, 'u');
 global.prefix = emojiAndSymbolRegex;
-global.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`))
+global.db = new Low(
+    /https?:\/\//.test(opts['db'] || '') ?
+    new cloudDBAdapter(opts['db']) : /mongodb(\+srv)?:\/\//i.test(opts['db']) ?
+    (opts['mongodbv2'] ? new mongoDBV2(opts['db']) : new mongoDB(opts['db'])) :
+    new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`)
+)
 
 global.DATABASE = global.db
 global.loadDatabase = async function loadDatabase() {
@@ -163,7 +174,15 @@ global.loadDatabase = async function loadDatabase() {
     }
     global.db.chain = chain(global.db.data)
 }
+
 loadDatabase()
+    .then(() => {
+        logSuccess('Load database successfully.');
+    })
+    .catch((err) => {
+        logError(`Error Load database: ${err.message}`);
+    });
+
 global.authFile = `TaylorSession`;
 
 const msgRetryCounterMap = (MessageRetryMap) => {};
@@ -278,7 +297,6 @@ global.conn = makeWaSocket(connectionOptions);
 store.bind(conn.ev)
 conn.isInit = false
 
-await loadConfig(conn)
 if (pairingCode && !conn.authState.creds.registered) {
     if (useMobile) conn.logger.error('\nCannot use pairing code with mobile api')
     console.log(chalk.cyan('╭──────────────────────────────────────···'));
@@ -625,19 +643,30 @@ async function connectionUpdate(update) {
 
 }
 
-let loggedErrors = new Set();
+global.loggedErrors = global.loggedErrors || new Set();
 
-process.on('uncaughtException', err => handleLog('Uncaught Exception:', err));
-process.on('rejectionHandled', promise => handleLog('Rejection Handled:', promise));
-process.on('warning', warning => console.warn(chalk.yellow.bold('Warning:'), warning));
-process.on('unhandledRejection', err => handleLog('Unhandled Rejection:', err));
-
-function handleLog(label, message) {
-    if (!loggedErrors.has(message)) {
-        console.error(chalk.red.bold(label), message);
-        loggedErrors.add(message);
+process.on('uncaughtException', err => {
+    if (!global.loggedErrors.has(err)) {
+        console.error(chalk.red.bold('Uncaught Exception:'), err);
+        global.loggedErrors.add(err);
     }
-}
+});
+
+process.on('rejectionHandled', promise => {
+    if (!global.loggedErrors.has(promise)) {
+        console.error(chalk.red.bold('Rejection Handled:'), promise);
+        global.loggedErrors.add(promise);
+    }
+});
+
+process.on('warning', warning => console.warn(chalk.yellow.bold('Warning:'), warning));
+
+process.on('unhandledRejection', err => {
+    if (!global.loggedErrors.has(err)) {
+        console.error(chalk.red.bold('Unhandled Rejection:'), err);
+        global.loggedErrors.add(err);
+    }
+});
 
 let isInit = true;
 let handler = await import('./handler.js');
@@ -779,76 +808,81 @@ async function filesInit() {
     }
 }
 
-filesInit().catch(console.error);
-
-async function FileEv(type, file) {
-    const filename = (file) => file.replace(/^.*[\\\/]/, "");
-    console.log(file);
-    try {
-        switch (type) {
-            case "add":
-                conn.logger.info(`new plugin - '${file}'`);
-                break;
-            case "change":
-            case "add":
-                const module = await import(`${global.__filename(file)}?update=${Date.now()}`);
-                global.plugins[file] = module.default || module;
-                conn.logger.info(`updated plugin - '${file}'`);
-                break;
-            case "unlink":
-                delete global.plugins[file];
-                conn.logger.warn(`deleted plugin - '${file}'`);
-                break;
-            default:
-                conn.logger.warn(`unhandled event type - '${type}' for file '${file}'`);
-                break;
-        }
-    } catch (e) {
-        conn.logger.error(`Error requiring plugin '${filename(file)}\n${e.toString()}'`);
-    } finally {
-        global.plugins = Object.fromEntries(
-            Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
-        );
-    }
-}
-
-
 async function watchFiles() {
-    try {
-        const pluginsPath = "plugins/**/*.js";
-        const watcher = chokidar.watch(pluginsPath, {
-            ignored: /(^|[\/\\])\../,
-            persistent: true,
-            ignoreInitial: true,
-            alwaysState: true,
-            awaitWriteFinish: true,
-            useFsEvents: true,
-            atomic: true,
-            awaitWriteFinish: {
-                stabilityThreshold: 2000,
-                pollInterval: 100,
-            },
-            usePolling: true,
-            interval: 300,
+    const pluginsPath = "plugins/**/*.js";
+    const chokidarOptions = {
+        ignored: /(^|[\/\\])\../,
+        persistent: true
+    };
+
+    const handleFileEvent = async (eventName, path) => {
+        try {
+            const filename = path.replace(/^.*[\\\/]/, "");
+            console.log(path);
+
+            switch (eventName) {
+                case "add":
+                    conn.logger.info(`new plugin - '${path}'`);
+                    break;
+                case "change":
+                case "add":
+                    const module = await import(`${global.__filename(path)}?update=${Date.now()}`);
+                    global.plugins[path] = module.default || module;
+                    conn.logger.info(`updated plugin - '${path}'`);
+                    break;
+                case "unlink":
+                    delete global.plugins[path];
+                    conn.logger.warn(`deleted plugin - '${path}'`);
+                    break;
+                default:
+                    conn.logger.warn(`unhandled event type - '${eventName}' for file '${path}'`);
+                    break;
+            }
+        } catch (error) {
+            conn.logger.error(`Error requiring plugin '${filename}\n${error.toString()}'`);
+        } finally {
+            try {
+                global.plugins = Object.fromEntries(
+                    Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
+                );
+            } catch (sortingError) {
+                console.error(`Error sorting plugins: ${sortingError.toString()}`);
+            }
+        }
+    };
+
+    const watcher = chokidar.watch(pluginsPath, chokidarOptions);
+
+    watcher
+        .on('add', (path) => handleFileEvent('add', path))
+        .on('change', (path) => handleFileEvent('change', path))
+        .on('unlink', (path) => handleFileEvent('unlink', path))
+        .on("error", (error) => {
+            watcher.close();
+            console.error(`Chokidar error: ${error.message}`);
         });
+};
 
-        ['add', 'change', 'unlink'].forEach(eventName =>
-            watcher.on(eventName, async (path) => {
-                try {
-                    await FileEv(eventName, `./${path}`);
-                } catch (err) {
-                    console.error(`Error handling '${eventName}' event for ${path}: ${err.message}`);
-                }
+loadConfig()
+    .then(() => {
+        logSuccess('Load config successfully.');
+        return filesInit();
+    })
+    .then(() => {
+        logSuccess('Init started successfully.');
+    })
+    .catch((err) => {
+        logError(`Error: ${err.message}`);
+    })
+    .finally(() => {
+        watchFiles()
+            .then(() => {
+                logSuccess('Watch started successfully.');
             })
-        );
-
-        watcher.on("error", (error) => console.error(`Chokidar error: ${error}`));
-    } catch (err) {
-        console.error(`Error in watchFiles: ${err.message}`);
-    }
-}
-
-watchFiles();
+            .catch((err) => {
+                logError(`Error starting watch: ${err}`);
+            });
+    });
 
 await global.reloadHandler();
 async function _quickTest() {
@@ -914,17 +948,33 @@ const actions = [{
     }
 ];
 
-for (const action of actions) {
-    setInterval(async () => {
-        if (global.stopped === 'close' || !conn || !conn.user) return;
-        await action.func();
-        console.log(chalk.cyanBright(
-            `\n╭───────────────────────────────────···\n│\n` +
-            `│  ${action.message}\n│\n` +
-            `╰───────────────────────────────────···\n`
-        ));
-    }, 60 * 60 * 1000);
-}
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const executeSequentially = async () => {
+    for (const action of actions) {
+        try {
+            await action.func();
+            console.log(chalk.cyanBright(
+                `\n╭───────────────────────────────────···\n│\n` +
+                `│  ${action.message}\n│\n` +
+                `╰───────────────────────────────────···\n`
+            ));
+        } catch (error) {
+            console.error(chalk.red(`Error executing action: ${error.message}`));
+            throw error; // Propagate the error to the outer catch block
+        } finally {
+            await delay(60 * 60 * 1000); // Delay for 1 hour
+        }
+    }
+};
+
+executeSequentially()
+    .then(() => {
+        console.log(chalk.green('All actions executed successfully.'));
+    })
+    .catch((error) => {
+        console.error(chalk.red(`Error executing actions: ${error.message}`));
+    });
 
 function clockString(ms) {
     if (isNaN(ms)) return '-- Hari -- Jam -- Menit -- Detik';

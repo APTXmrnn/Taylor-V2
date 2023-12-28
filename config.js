@@ -11,8 +11,7 @@ import moment from "moment-timezone"
 import fetch from "node-fetch"
 import Jimp from "jimp"
 
-async function loadConfig(conn) {
-
+async function loadConfig() {
     /*Oᴡɴᴇʀ number*/
     global.owner = [
         ["6282195322106", "️𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 - 𝑶𝒘𝒏𝒆𝒓", true]
@@ -62,7 +61,7 @@ async function loadConfig(conn) {
     global.xyro = "yqiBQF86F4"
 
     /*Number*/
-    global.nomorbot = conn.user.jid.split("@")[0]
+    global.nomorbot = "212760023461"
     global.nomorown = "6282195322106"
     global.namebot = " ᴛᴀyʟᴏʀ-ʙᴏᴛ あ⁩ "
     global.nameown = "「 𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 」"
@@ -145,7 +144,7 @@ async function loadConfig(conn) {
 
     let Sarapan = "📍 " + Sapa() + Pagi()
     let imageUrl = ImgEstetik()
-    let Thum = await (await conn.resize(pickRandom([logo, imagebot]), 300, 150))
+    let Thum = await resize(pickRandom([logo, imagebot]), 300, 150)
     let fpayment = {
         key: {
             participant: Parti,
@@ -381,7 +380,7 @@ async function loadConfig(conn) {
                 mediaUrl: sgc,
                 description: "𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕",
                 previewType: "PHOTO",
-                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
                 sourceUrl: "https://github.com/AyGemuy",
             }
         }
@@ -413,7 +412,7 @@ async function loadConfig(conn) {
                 sourceType: "PDF",
                 previewType: "PDF",
                 sourceUrl: null,
-                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
                 title: "📍 " + Sapa() + Pagi()
             }
         }
@@ -439,7 +438,7 @@ async function loadConfig(conn) {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
                 sourceUrl: null
             }
         }
@@ -465,7 +464,7 @@ async function loadConfig(conn) {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
                 sourceUrl: null
             }
         }
@@ -491,7 +490,7 @@ async function loadConfig(conn) {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
                 sourceUrl: snh
             }
         }
@@ -517,7 +516,7 @@ async function loadConfig(conn) {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await (await conn.resize(pickRandom([logo, imagebot]), 300, 150)),
+                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
                 sourceUrl: syt
             }
         }
@@ -637,6 +636,34 @@ async function loadConfig(conn) {
             else return emot[results[0][0]]
         }
     }
+
+
+
+    global.loggedErrors = global.loggedErrors || new Set();
+
+    process.on('uncaughtException', err => {
+        if (!global.loggedErrors.has(err)) {
+            console.error(chalk.red.bold('Uncaught Exception:'), err);
+            global.loggedErrors.add(err);
+        }
+    });
+
+    process.on('rejectionHandled', promise => {
+        if (!global.loggedErrors.has(promise)) {
+            console.error(chalk.red.bold('Rejection Handled:'), promise);
+            global.loggedErrors.add(promise);
+        }
+    });
+
+    process.on('warning', warning => console.warn(chalk.yellow.bold('Warning:'), warning));
+
+    process.on('unhandledRejection', err => {
+        if (!global.loggedErrors.has(err)) {
+            console.error(chalk.red.bold('Unhandled Rejection:'), err);
+            global.loggedErrors.add(err);
+        }
+    });
+
 }
 
 export {
@@ -1328,4 +1355,13 @@ function businessOwnerJid() {
     let Org = pickRandom([global.nomorown, "0", "628561122343", "6288906250517", "6282195322106", "6281119568305", "6281282722861", "6282112790446"])
     let Parti = pickRandom([Org + "@s.whatsapp.net"])
     return Parti;
+}
+
+async function resize(image, width, height) {
+    try {
+        const oyy = await Jimp.read(image);
+        return await oyy.resize(width, height).getBufferAsync(Jimp.MIME_JPEG);
+    } catch (error) {
+        return Buffer.from([]);
+    }
 }
