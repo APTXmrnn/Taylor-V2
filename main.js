@@ -625,10 +625,19 @@ async function connectionUpdate(update) {
 
 }
 
-console.error(chalk.red(`[AntiCrash] :: Unhandled Rejection/Catch\nReason:`), (reason, p) => console.error(chalk.yellow("Promise:"), p));
-console.error(chalk.red(`[AntiCrash] :: Uncaught Exception/Catch\nError:`), (err, origin) => console.error(chalk.yellow("Origin:"), origin));
-console.error(chalk.red(`[AntiCrash] :: Uncaught Exception/Catch (MONITOR)\nError:`), (err, origin) => console.error(chalk.yellow("Origin:"), origin));
+let loggedErrors = new Set();
 
+process.on('uncaughtException', err => handleLog('Uncaught Exception:', err));
+process.on('rejectionHandled', promise => handleLog('Rejection Handled:', promise));
+process.on('warning', warning => console.warn(chalk.yellow.bold('Warning:'), warning));
+process.on('unhandledRejection', err => handleLog('Unhandled Rejection:', err));
+
+function handleLog(label, message) {
+    if (!loggedErrors.has(message)) {
+        console.error(chalk.red.bold(label), message);
+        loggedErrors.add(message);
+    }
+}
 
 let isInit = true;
 let handler = await import('./handler.js');
