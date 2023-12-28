@@ -1000,6 +1000,7 @@ export async function handler(chatUpdate) {
                 if (!("autorestart" in settings)) settings.autorestart = true
                 if (!("restartDB" in settings)) settings.restartDB = 0
                 if (!("status" in settings)) settings.status = 0
+                if (!("antibot" in settings)) settings.antibot = false
 
             } else global.db.data.settings[this.user.jid] = {
                 self: false,
@@ -1012,13 +1013,14 @@ export async function handler(chatUpdate) {
                 restrict: false,
                 autorestart: true,
                 restartDB: 0,
-                status: 0
+                status: 0,
+                antibot: false
             }
         } catch (e) {
             console.error(e)
         }
-        
-        
+
+
         if (typeof m.text !== "string")
             m.text = ""
 
@@ -1039,8 +1041,8 @@ export async function handler(chatUpdate) {
         }
 
         if (m.isBaileys)
-            
-                    return 
+
+            return
         m.exp += Math.ceil(Math.random() * 10)
 
         let usedPrefix
@@ -1082,7 +1084,7 @@ export async function handler(chatUpdate) {
                     // global.dfail("restrict", m, this)
                     continue
                 }
-                
+
             const str2Regex = str => str.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
             let _prefix = plugin.customPrefix ? plugin.customPrefix : conn.prefix ? conn.prefix : global.prefix
             let match = (_prefix instanceof RegExp ? // RegExp Mode?
@@ -1166,7 +1168,7 @@ export async function handler(chatUpdate) {
                         name != "./plugins/Owner/owner-exec2.js" &&
                         user?.banned)
                         return
-                        if (name != "./plugins/Owner/owner-exec.js" &&
+                    if (name != "./plugins/Owner/owner-exec.js" &&
                         name != "./plugins/Owner/owner-exec2.js" &&
                         name != "./plugins/Others/enable.js" &&
                         (_chat?.self || _chat?.pconly || _chat?.gconly || _chat?.swonly)
@@ -1212,30 +1214,30 @@ export async function handler(chatUpdate) {
                     continue
                 }
                 if (global.db.data.settings[this.user.jid].rpg) {
-                if (plugin.tags && plugin.tags.includes("rpg")) {
-                    fail("rpg", m, this)
-                    continue
-                }
+                    if (plugin.tags && plugin.tags.includes("rpg")) {
+                        fail("rpg", m, this)
+                        continue
+                    }
                 }
                 if ((!(isROwner || isOwner) && global.db.data.settings[this.user.jid].self) || opts["self"]) {
-    //fail("self", m, this);
-    continue;
-}
+                    //fail("self", m, this);
+                    continue;
+                }
 
-if ((opts["pconly"] || global.db.data.settings[this.user.jid].pconly) && m.isGroup && m.chat.endsWith("s.whatsapp.net")) {
-    //fail("pconly", m, this);
-    continue;
-}
+                if ((opts["pconly"] || global.db.data.settings[this.user.jid].pconly) && m.isGroup && m.chat.endsWith("s.whatsapp.net")) {
+                    //fail("pconly", m, this);
+                    continue;
+                }
 
-if ((opts["gconly"] || global.db.data.settings[this.user.jid].gconly) && !m.isGroup && m.chat.endsWith("g.us")) {
-    //fail("gconly", m, this);
-    continue;
-}
+                if ((opts["gconly"] || global.db.data.settings[this.user.jid].gconly) && !m.isGroup && m.chat.endsWith("g.us")) {
+                    //fail("gconly", m, this);
+                    continue;
+                }
 
-if ((opts["swonly"] || global.db.data.settings[this.user.jid].swonly) && m.chat !== "status@broadcast") {
-    //fail("swonly", m, this);
-    continue;
-}
+                if ((opts["swonly"] || global.db.data.settings[this.user.jid].swonly) && m.chat !== "status@broadcast") {
+                    //fail("swonly", m, this);
+                    continue;
+                }
 
                 m.isCommand = true
                 let xp = "exp" in plugin ? parseInt(plugin.exp) : 17 // XP Earning per command
@@ -1375,7 +1377,7 @@ if ((opts["swonly"] || global.db.data.settings[this.user.jid].swonly) && m.chat 
         } catch (e) {
             console.log(m, m.quoted, e)
         }
-        if (opts["autoread"] || global.db.data.settings[this.user.jid].autoread )
+        if (opts["autoread"] || global.db.data.settings[this.user.jid].autoread)
             await this.chatRead(m.key).catch(() => {})
     }
 }
@@ -1716,10 +1718,10 @@ ${userTag} RPG tidak aktif, Silahkan hubungi Team Bot Discussion Untuk mengaktif
         restrict: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\n
 ${userTag} Fitur ini di *disable* !`,
 
-self: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *self*`,
-pconly: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *pconly*`,
-gconly: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *gconly*`,
-swonly: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *swonly*`,
+        self: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *self*`,
+        pconly: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *pconly*`,
+        gconly: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *gconly*`,
+        swonly: `*${emoji.restrict} ᴘᴇʀʜᴀᴛɪᴀɴ ᴛɪᴅᴀᴋ ᴀᴋᴛɪꜰ*\nMode: *swonly*`,
     } [type]
     if (msg) return await conn.reply(
         m.chat,
