@@ -1,12 +1,18 @@
-import { uploadPomf2 } from '../../lib/scraper/scraper-toolv2.js';
+import {
+    uploadPomf2
+} from '../../lib/scraper/scraper-toolv2.js';
 import fetch from 'node-fetch';
 
-let handler = async (m, { text, usedPrefix, command }) => {
+let handler = async (m, {
+    text,
+    usedPrefix,
+    command
+}) => {
     try {
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         let [text1, text2] = text.split("|");
-        
+
         if (!mime) throw 'Media not found';
 
         let media = await q.download();
@@ -21,13 +27,7 @@ let handler = async (m, { text, usedPrefix, command }) => {
             let linkVideo = await TextInVideo(response.files[0].url, text1, text2);
 
             const message = `*Your message was successfully sent! 🚀*\n\n*File Details:*\n*URL:* ${linkVideo}\n*Size:* ${fileSize}`;
-            await conn.sendMessage(m.chat, {
-                image: { url: linkVideo },
-                caption: message,
-                mentions: [m.sender]
-            }, {
-                quoted: m
-            });
+            await conn.sendFile(m.chat, await fetchData(linkVideo), '', message, m);
         } else {
             await m.reply('Your message failed to send. 🙁');
         }
@@ -60,13 +60,13 @@ const TextInVideo = async (link, text1, text2) => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-    template_id: '872df3b2-46fa-4547-b55c-190d92cceb99',
-    modifications: {
-        'ecf1a01d-ff16-4b5f-a58c-a4998b02e502': link,
-        'Text-1': text1,
-        'Text-2': text2,
-    },
-}),
+                template_id: '872df3b2-46fa-4547-b55c-190d92cceb99',
+                modifications: {
+                    'ecf1a01d-ff16-4b5f-a58c-a4998b02e502': link,
+                    'Text-1': text1,
+                    'Text-2': text2,
+                },
+            }),
         });
 
         if (!response.ok) {
@@ -78,5 +78,25 @@ const TextInVideo = async (link, text1, text2) => {
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
+    }
+};
+
+const fetchData = async (url) => {
+    try {
+        const referer = new URL(url).origin;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Referer': referer,
+                'Accept': '*/*',
+            },
+        });
+
+        const data = await response.arrayBuffer();
+
+        return data;
+    } catch (error) {
+        throw new Error('Error fetching data:', error);
     }
 };

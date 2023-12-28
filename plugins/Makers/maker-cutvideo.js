@@ -1,12 +1,18 @@
-import { uploadPomf2 } from '../../lib/scraper/scraper-toolv2.js';
+import {
+    uploadPomf2
+} from '../../lib/scraper/scraper-toolv2.js';
 import fetch from 'node-fetch';
 
-let handler = async (m, { args, usedPrefix, command }) => {
+let handler = async (m, {
+    args,
+    usedPrefix,
+    command
+}) => {
     try {
         let q = m.quoted ? m.quoted : m;
         let mime = (q.msg || q).mimetype || '';
         let [start, end] = args;
-        
+
         if (!mime) throw 'Media not found';
 
         let media = await q.download();
@@ -21,13 +27,7 @@ let handler = async (m, { args, usedPrefix, command }) => {
             let linkVideo = await cutVideo(response.files[0].url, start, end);
 
             const message = `*Your message was successfully sent! 🚀*\n\n*File Details:*\n*URL:* ${linkVideo}\n*Size:* ${fileSize}`;
-            await conn.sendMessage(m.chat, {
-                image: { url: linkVideo },
-                caption: message,
-                mentions: [m.sender]
-            }, {
-                quoted: m
-            });
+            await conn.sendFile(m.chat, await fetchData(linkVideo), '', message, m);
         } else {
             await m.reply('Your message failed to send. 🙁');
         }
@@ -62,14 +62,12 @@ const cutVideo = async (link, start, end) => {
             body: JSON.stringify({
                 "source": {
                     "output_format": "mp4",
-                    "elements": [
-                        {
-                            "type": "video",
-                            "source": link,
-                            "trim_start": start,
-                            "trim_duration": end
-                        }
-                    ]
+                    "elements": [{
+                        "type": "video",
+                        "source": link,
+                        "trim_start": start,
+                        "trim_duration": end
+                    }]
                 }
             }),
         });
@@ -83,5 +81,25 @@ const cutVideo = async (link, start, end) => {
     } catch (error) {
         console.error('Error fetching data:', error);
         throw error;
+    }
+};
+
+const fetchData = async (url) => {
+    try {
+        const referer = new URL(url).origin;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Referer': referer,
+                'Accept': '*/*',
+            },
+        });
+
+        const data = await response.arrayBuffer();
+
+        return data;
+    } catch (error) {
+        throw new Error('Error fetching data:', error);
     }
 };
