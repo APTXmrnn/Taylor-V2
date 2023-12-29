@@ -8,10 +8,13 @@ import {
 } from "url"
 import fs from "fs"
 import moment from "moment-timezone"
-import fetch from "node-fetch"
-import Jimp from "jimp"
 
-async function loadConfig() {
+const {
+    generateThumbnail,
+    WA_DEFAULT_EPHEMERAL
+} = await (await import('@adiwajshing/baileys')).default;
+
+async function loadConfig(conn) {
     /*Oᴡɴᴇʀ number*/
     global.owner = [
         ["6282195322106", "️𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕 - 𝑶𝒘𝒏𝒆𝒓", true]
@@ -133,7 +136,7 @@ async function loadConfig() {
 
     /* Begin */
     global.ucapan = Pagi()
-    global.ephemeral = "86400"
+    global.ephemeral = WA_DEFAULT_EPHEMERAL
 
     /* Global Random */
     global.doc = pickRandom(["application/vnd.openxmlformats-officedocument.presentationml.presentation", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/msword", "application/pdf", "text/rtf"])
@@ -144,7 +147,7 @@ async function loadConfig() {
 
     let Sarapan = "📍 " + Sapa() + Pagi()
     let imageUrl = ImgEstetik()
-    let Thum = await resize(pickRandom([logo, imagebot]), 300, 150)
+    global.Thumbnails = (await generateThumbnail((await conn.getFile(pickRandom([logo, imagebot]))).data, 'image')).thumbnail
     let fpayment = {
         key: {
             participant: Parti,
@@ -205,8 +208,8 @@ async function loadConfig() {
             contactMessage: {
                 displayName: Sarapan,
                 vcard: `BEGIN:VCARD\nVERSION:3.0\nN:XL;${Sarapan},;;;\nFN:${Sarapan},\nitem1.TEL;waid=${nomorown.split("@")[0]}:${nomorown.split("@")[0]}\nitem1.X-ABLabell:Ponsel\nEND:VCARD`,
-                jpegThumbnail: Thum,
-                thumbnail: Thum,
+                jpegThumbnail: Thumbnails,
+                thumbnail: Thumbnails,
                 sendEphemeral: true
             }
         }
@@ -235,7 +238,7 @@ async function loadConfig() {
                 h: Sarapan,
                 seconds: SizeDoc(),
                 caption: Sarapan,
-                jpegThumbnail: Thum
+                jpegThumbnail: Thumbnails
             }
         }
     }
@@ -248,7 +251,7 @@ async function loadConfig() {
             extendedTextMessage: {
                 text: Sarapan,
                 title: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                jpegThumbnail: Thum
+                jpegThumbnail: Thumbnails
             }
         }
     }
@@ -261,7 +264,7 @@ async function loadConfig() {
             liveLocationMessage: {
                 caption: Sarapan,
                 h: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                jpegThumbnail: Thum
+                jpegThumbnail: Thumbnails
             }
         }
     }
@@ -275,7 +278,7 @@ async function loadConfig() {
                 product: {
                     productImage: {
                         mimetype: "image/jpeg",
-                        jpegThumbnail: Thum
+                        jpegThumbnail: Thumbnails
                     },
                     title: Sarapan,
                     description: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
@@ -296,7 +299,7 @@ async function loadConfig() {
         message: {
             documentMessage: {
                 title: Sarapan,
-                jpegThumbnail: Thum
+                jpegThumbnail: Thumbnails
             }
         }
     }
@@ -312,7 +315,7 @@ async function loadConfig() {
                 seconds: SizeDoc(),
                 gifPlayback: true,
                 caption: `𝗧 𝗜 𝗠 𝗘 : ${moment.tz("Asia/Makassar").format("HH:mm:ss")}`,
-                jpegThumbnail: Thum
+                jpegThumbnail: Thumbnails
             }
         }
     }
@@ -380,7 +383,7 @@ async function loadConfig() {
                 mediaUrl: sgc,
                 description: "𝑾𝒖𝒅𝒚𝒔𝒐𝒇𝒕",
                 previewType: "PHOTO",
-                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
+                thumbnail: Thumbnails,
                 sourceUrl: "https://github.com/AyGemuy",
             }
         }
@@ -412,7 +415,7 @@ async function loadConfig() {
                 sourceType: "PDF",
                 previewType: "PDF",
                 sourceUrl: null,
-                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
+                thumbnail: Thumbnails,
                 title: "📍 " + Sapa() + Pagi()
             }
         }
@@ -438,7 +441,7 @@ async function loadConfig() {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
+                thumbnail: Thumbnails,
                 sourceUrl: null
             }
         }
@@ -464,7 +467,7 @@ async function loadConfig() {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
+                thumbnail: Thumbnails,
                 sourceUrl: null
             }
         }
@@ -490,7 +493,7 @@ async function loadConfig() {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
+                thumbnail: Thumbnails,
                 sourceUrl: snh
             }
         }
@@ -516,7 +519,7 @@ async function loadConfig() {
                 description: "Follow: " + sig,
                 title: "📍 " + Sapa() + Pagi(),
                 body: author,
-                thumbnail: await resize(pickRandom([logo, imagebot]), 300, 150),
+                thumbnail: Thumbnails,
                 sourceUrl: syt
             }
         }
@@ -1355,13 +1358,4 @@ function businessOwnerJid() {
     let Org = pickRandom([global.nomorown, "0", "628561122343", "6288906250517", "6282195322106", "6281119568305", "6281282722861", "6282112790446"])
     let Parti = pickRandom([Org + "@s.whatsapp.net"])
     return Parti;
-}
-
-async function resize(image, width, height) {
-    try {
-        const oyy = await Jimp.read(image);
-        return await oyy.resize(width, height).getBufferAsync(Jimp.MIME_JPEG);
-    } catch (error) {
-        return Buffer.from([]);
-    }
 }

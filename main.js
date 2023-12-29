@@ -620,25 +620,13 @@ async function connectionUpdate(update) {
     if (!pairingCode && !useMobile && qr !== 0 && qr !== undefined && connection === "close") {
         conn.logger.error(chalk.yellow(`\n🚩 Koneksi ditutup, harap hapus folder ${global.authFile} dan pindai ulang kode QR`));
 
-        try {
-            execSync(`pkill -f "node index.js"`);
-            const stdout = execSync(`node index.js ${process.argv.slice(2).join(' ')}`);
-            console.log(`Restarted successfully: ${stdout}`);
-        } catch (err) {
-            console.error(`Error: ${err.message}`);
-        }
+        process.exit(0);
     }
 
     if (!pairingCode && !useMobile && useQr && qr !== 0 && qr !== undefined && connection === "close") {
         conn.logger.info(chalk.yellow(`\n🚩ㅤPindai kode QR ini, kode QR akan kedaluwarsa dalam 60 detik.`));
 
-        try {
-            execSync(`pkill -f "node index.js"`);
-            const stdout = execSync(`node index.js ${process.argv.slice(2).join(' ')}`);
-            console.log(`Restarted successfully: ${stdout}`);
-        } catch (err) {
-            console.error(`Error: ${err.message}`);
-        }
+        process.exit(0);
     }
 
 }
@@ -757,18 +745,21 @@ global.reloadHandler = async function(restatConn) {
     return true;
 };
 
+const pluginFolder = join(__dirname, 'plugins');
+const pluginFilter = (filename) => /\.js$/.test(filename);
+const filename = (file) => file.replace(/^.*[\\\/]/, '');
 global.plugins = {};
 
 async function filesInit() {
     try {
-        const pluginsDirectory = path.join(__dirname, 'plugins');
-        const pattern = path.join(pluginsDirectory, '**/*.js');
+        const pluginsDirectory = join(__dirname, 'plugins');
+        const pattern = join(pluginsDirectory, '**/*.js');
         const CommandsFiles = await glob.sync(pattern, {
             ignore: ['**/node_modules/**']
         });
 
         const importPromises = CommandsFiles.map(async (file) => {
-            const moduleName = '/' + path.relative(__dirname, file);
+            const moduleName = '/' + join(__dirname, path.relative(__dirname, file));
             try {
                 const module = await import(file);
                 global.plugins[moduleName] = module.default || module;
@@ -787,102 +778,146 @@ async function filesInit() {
         const successMessages = results.filter((result) => typeof result === 'string');
         const errorMessages = results.filter((result) => typeof result === 'object');
 
+        conn.logger.warn(`Loaded ${CommandsFiles.length} JS Files total.`);
+        conn.logger.info(`✅ Success Plugins:\n${successMessages.length} total.`);
+        conn.logger.error(`❌ Error Plugins:\n${errorMessages.length} total`);
+
         try {
             await conn.reply(
                 nomorown + "@s.whatsapp.net",
                 "*Loaded Plugins Report:*\n" +
-                "\n*Total Plugins:* " + CommandsFiles.length +
-                "\n*Success:* " + successMessages.length +
-                "\n*Error:* " + errorMessages.length +
-                (errorMessages.length > 0 ? "\n  - " + errorMessages.map((error) => `${error.moduleName} (${error.filePath})`).join('\n  - ') : ""), null
+                `\n*Total Plugins:* ${CommandsFiles.length}` +
+                `\n*Success:* ${successMessages.length}` +
+                `\n*Error:* ${errorMessages.length}` +
+                (errorMessages.length > 0 ? `\n  - ${errorMessages.map((error) => `${error.moduleName} (${error.filePath})`).join('\n  - ')}` : ""), null
             );
         } catch (e) {
             console.log('Bot loaded plugins.');
         }
-
-        conn.logger.warn("Loaded " + CommandsFiles.length + " JS Files total.");
-        conn.logger.info("✅ Success Plugins:\n" + successMessages.length + " total.");
-        conn.logger.error("❌ Error Plugins:\n" + errorMessages.length + " total");
     } catch (e) {
         conn.logger.error(e);
     }
 }
 
-async function watchFiles() {
-    const pluginsPath = "plugins/**/*.js";
-    const chokidarOptions = {
-        ignored: /(^|[\/\\])\../,
-        persistent: true
-    };
-
-    const handleFileEvent = async (eventName, path) => {
-        try {
-            const filename = path.replace(/^.*[\\\/]/, "");
-            console.log(path);
-
-            switch (eventName) {
-                case "add":
-                    conn.logger.info(`new plugin - '${path}'`);
-                    break;
-                case "change":
-                case "add":
-                    const module = await import(`${global.__filename(path)}?update=${Date.now()}`);
-                    global.plugins[path] = module.default || module;
-                    conn.logger.info(`updated plugin - '${path}'`);
-                    break;
-                case "unlink":
-                    delete global.plugins[path];
-                    conn.logger.warn(`deleted plugin - '${path}'`);
-                    break;
-                default:
-                    conn.logger.warn(`unhandled event type - '${eventName}' for file '${path}'`);
-                    break;
+global.reload = async (_ev, filename) => {
+    if (pluginFilter(filename)) {
+        let dir = join(pluginFolder, filename);
+        if (filename in global.plugins) {
+            if (existsSync(dir))
+                conn.logger.info(`re-require plugin '${filename}'`);
+            else {
+                conn.logger.warn(`deleted plugin '${filename}'`);
+                return delete global.plugins[filename];
             }
-        } catch (error) {
-            conn.logger.error(`Error requiring plugin '${filename}\n${error.toString()}'`);
+        } else conn.logger.info(`requiring new plugin '${filename}'`);
+
+        try {
+            const fileContent = await readFileSync(dir, 'utf-8');
+            const err = syntaxerror(fileContent, filename, {
+                sourceType: 'module',
+                allowAwaitOutsideFunction: true,
+            });
+            if (err)
+                conn.logger.error(`syntax error while loading '${filename}'\n${format(err)}`);
+            else {
+                const module = await import(`${global.__filename(dir)}?update=${Date.now()}`);
+                global.plugins[filename] = module.default || module;
+            }
+        } catch (e) {
+            conn.logger.error(`error require plugin '${filename}\n${format(e)}'`);
         } finally {
+            global.plugins = Object.fromEntries(
+                Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
+            );
+        }
+    }
+};
+
+async function FileEv(type, file) {
+    console.log(file);
+    switch (type) {
+        case "delete":
+            return delete global.plugins[file];
+        case "change":
             try {
+                const module = await import(
+                    `${global.__filename(file)}?update=${Date.now()}`
+                );
+                global.plugins[file] = module.default || module;
+            } catch (e) {
+                conn.logger.error(
+                    `error require plugin '${filename(file)}\n${format(e)}'`
+                );
+            } finally {
                 global.plugins = Object.fromEntries(
                     Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
                 );
-            } catch (sortingError) {
-                console.error(`Error sorting plugins: ${sortingError.toString()}`);
             }
-        }
-    };
+            break;
+        case "add":
+            try {
+                const module = await import(
+                    `${global.__filename(file)}?update=${Date.now()}`
+                );
+                global.plugins[file] = module.default || module;
+            } catch (e) {
+                conn.logger.error(
+                    `error require plugin '${filename(file)}\n${format(e)}'`
+                );
+            } finally {
+                global.plugins = Object.fromEntries(
+                    Object.entries(global.plugins).sort(([a], [b]) => a.localeCompare(b))
+                );
+            }
+            break;
+    }
+}
 
-    const watcher = chokidar.watch(pluginsPath, chokidarOptions);
-
+async function watchFiles() {
+    let watcher = chokidar.watch("plugins/**/*.js", {
+        ignored: /(^|[\/\\])\../,
+        persistent: true,
+        ignoreInitial: true,
+        alwaysState: true,
+    });
+    const pluginFilter = (filename) => /\.js$/.test(filename);
     watcher
-        .on('add', (path) => handleFileEvent('add', path))
-        .on('change', (path) => handleFileEvent('change', path))
-        .on('unlink', (path) => handleFileEvent('unlink', path))
-        .on("error", (error) => {
-            watcher.close();
-            console.error(`Chokidar error: ${error.message}`);
+        .on("add", async (path) => {
+            conn.logger.info(`new plugin - '${path}'`);
+            return await FileEv("add", `./${path}`);
+        })
+        .on("change", async (path) => {
+            conn.logger.info(`updated plugin - '${path}'`);
+            return await FileEv("change", `./${path}`);
+        })
+        .on("unlink", async (path) => {
+            conn.logger.warn(`deleted plugin - '${path}'`);
+            return await FileEv("delete", `./${path}`);
         });
-};
+}
 
-loadConfig()
+loadConfig(global.conn)
     .then(() => {
-        logSuccess('Load config successfully.');
+        logSuccess('Sukses load config.');
         return filesInit();
     })
     .then(() => {
-        logSuccess('Init started successfully.');
+        logSuccess('Sukses load plugins.');
+        return watchFiles();
     })
-    .catch((err) => {
-        logError(`Error: ${err.message}`);
+    .then(() => {
+        logSuccess('Sukses watch plugins.');
+        return runPeriodically();
     })
-    .finally(() => {
-        watchFiles()
-            .then(() => {
-                logSuccess('Watch started successfully.');
-            })
-            .catch((err) => {
-                logError(`Error starting watch: ${err}`);
-            });
+    .then(() => {
+        console.log(chalk.green('Semua aksi berhasil dieksekusi.'));
+    })
+    .catch((error) => {
+        console.error(chalk.red(`Error saat mengeksekusi aksi: ${error.message}`));
     });
+
+Object.freeze(global.reload);
+watch(pluginFolder, global.reload);
 
 await global.reloadHandler();
 async function _quickTest() {
@@ -950,7 +985,7 @@ const actions = [{
 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const executeSequentially = async () => {
+const executeActions = async () => {
     for (const action of actions) {
         try {
             await action.func();
@@ -961,20 +996,22 @@ const executeSequentially = async () => {
             ));
         } catch (error) {
             console.error(chalk.red(`Error executing action: ${error.message}`));
-            throw error; // Propagate the error to the outer catch block
-        } finally {
-            await delay(60 * 60 * 1000); // Delay for 1 hour
+            throw error;
         }
     }
 };
 
-executeSequentially()
-    .then(() => {
-        console.log(chalk.green('All actions executed successfully.'));
-    })
-    .catch((error) => {
-        console.error(chalk.red(`Error executing actions: ${error.message}`));
-    });
+const runPeriodically = async () => {
+    while (true) {
+        await executeActions();
+        await delay(60 * 60 * 1000);
+    }
+};
+
+process.on('SIGINT', () => {
+    console.log(chalk.yellow('Received SIGINT. Stopping the execution.'));
+    process.exit(0);
+});
 
 function clockString(ms) {
     if (isNaN(ms)) return '-- Hari -- Jam -- Menit -- Detik';
