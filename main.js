@@ -74,11 +74,9 @@ import {
 } from 'lowdb';
 import {
     mongoDB,
-    mongoDBV2
-} from './lib/mongoDB.js';
-import {
+    mongoDBV2,
     cloudDBAdapter
-} from './lib/cloudDBAdapter.js';
+} from './lib/DB_Adapters/index.js';
 
 const {
     DisconnectReason,
